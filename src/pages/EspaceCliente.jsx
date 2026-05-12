@@ -86,7 +86,6 @@ function EspaceCliente() {
       setUser(u)
       setLoading(false)
       if (u) {
-        // Charger les RDV de la cliente par téléphone/email
         const q = query(collection(db, 'rdvs'), where('clientEmail', '==', u.email))
         onSnapshot(q, (snap) => {
           const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
@@ -222,6 +221,13 @@ function EspaceCliente() {
           cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
         }
         .btn-annuler:hover { background: #fef2f2; }
+        .btn-avis {
+          padding: 6px 14px; background: transparent; color: #c4829a;
+          border: 1px solid #c4829a; border-radius: 20px; font-size: 11px;
+          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
+          margin-top: 4px;
+        }
+        .btn-avis:hover { background: rgba(196,130,154,0.08); }
         .rdv-card {
           background: #fff; border: 1px solid #ede8e3;
           border-radius: 16px; padding: 20px 24px;
@@ -264,9 +270,7 @@ function EspaceCliente() {
         <div style={{ minHeight: 'calc(100vh - 70px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
           <div style={{ width: '100%', maxWidth: '400px', animation: 'fadeUp 0.6s ease forwards' }}>
 
-            <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'center' }}>
-              Espace cliente
-            </p>
+            <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'center' }}>Espace cliente</p>
             <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px', textAlign: 'center' }}>
               {mode === 'connexion' ? 'Connexion' : 'Créer un compte'}
             </h2>
@@ -317,7 +321,6 @@ function EspaceCliente() {
                 {authLoading ? '✦ Chargement...' : mode === 'connexion' ? 'Se connecter' : 'Créer mon compte'}
               </button>
             </form>
-
           </div>
         </div>
       )}
@@ -335,7 +338,7 @@ function EspaceCliente() {
             <p style={{ fontSize: '13px', color: '#c4b5ac', fontWeight: '300' }}>{user.email}</p>
           </div>
 
-          {/* STATS RAPIDES */}
+          {/* STATS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px' }}>
             {[
               { label: 'RDV à venir', valeur: rdvsAVenir.length, couleur: '#c4829a' },
@@ -351,7 +354,7 @@ function EspaceCliente() {
 
           {/* ONGLETS */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
-            <button className={`tab-btn ${rdvsAVenir.length >= 0 ? 'active' : ''}`} onClick={() => {}}>
+            <button className="tab-btn active">
               RDV à venir ({rdvsAVenir.length})
             </button>
             <button className="tab-btn" onClick={() => navigate('/recherche')}>
@@ -389,12 +392,15 @@ function EspaceCliente() {
                       </p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
                     <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>
                       {rdv.statut}
                     </span>
                     <button className="btn-annuler" onClick={() => handleAnnuler(rdv.id)}>
                       Annuler
+                    </button>
+                    <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>
+                      ⭐ Laisser un avis
                     </button>
                   </div>
                 </div>
@@ -418,13 +424,20 @@ function EspaceCliente() {
                         <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service} · {rdv.date}</p>
                       </div>
                     </div>
-                    <span style={{
-                      background: rdv.statut === 'annulé' ? '#fef2f2' : '#f5f0ed',
-                      color: rdv.statut === 'annulé' ? '#dc2626' : '#9c9189',
-                      fontSize: '11px', padding: '3px 10px', borderRadius: '20px'
-                    }}>
-                      {rdv.statut}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                      <span style={{
+                        background: rdv.statut === 'annulé' ? '#fef2f2' : '#f5f0ed',
+                        color: rdv.statut === 'annulé' ? '#dc2626' : '#9c9189',
+                        fontSize: '11px', padding: '3px 10px', borderRadius: '20px'
+                      }}>
+                        {rdv.statut}
+                      </span>
+                      {rdv.statut !== 'annulé' && (
+                        <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>
+                          ⭐ Laisser un avis
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

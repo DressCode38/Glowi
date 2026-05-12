@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { collection, getDocs, addDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
 
 function CustomCursor() {
@@ -72,6 +72,7 @@ function ProPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [pro, setPro] = useState(null)
+  const [avis, setAvis] = useState([])
   const [loading, setLoading] = useState(true)
   const [serviceChoisi, setServiceChoisi] = useState(null)
   const [dateChoisie, setDateChoisie] = useState('')
@@ -100,7 +101,13 @@ function ProPage() {
         const toutes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
         const slugNom = (nom) => nom?.toLowerCase().replace(/\s+/g, '-') || ''
         const proTrouvee = toutes.find(p => slugNom(p.nom) === id)
-        if (proTrouvee) setPro(proTrouvee)
+        if (proTrouvee) {
+          setPro(proTrouvee)
+          // Charger les avis
+          const avisSnapshot = await getDocs(query(collection(db, 'avis'), where('proId', '==', proTrouvee.id)))
+          const avisData = avisSnapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+          setAvis(avisData)
+        }
       } catch (e) {
         console.error(e)
       }
@@ -132,6 +139,10 @@ function ProPage() {
     }
     setLoadingRdv(false)
   }
+
+  const noteMoyenne = avis.length > 0
+    ? (avis.reduce((acc, a) => acc + a.note, 0) / avis.length).toFixed(1)
+    : null
 
   if (loading) {
     return (
@@ -230,6 +241,11 @@ function ProPage() {
           margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); }
+        .avis-card {
+          background: #fff; border: 1px solid #ede8e3;
+          border-radius: 14px; padding: 18px 20px;
+          margin-bottom: 12px;
+        }
       `}</style>
 
       <CustomCursor />
@@ -264,14 +280,20 @@ function ProPage() {
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ background: '#fdf6f8', color: '#c4829a', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>{pro.metier}</span>
               <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>✓ Disponible</span>
+              {noteMoyenne && (
+                <span style={{ background: '#faf8f5', color: '#9c9189', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ede8e3' }}>
+                  ⭐ {noteMoyenne} · {avis.length} avis
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
 
-          {/* GAUCHE — SERVICES */}
+          {/* GAUCHE */}
           <div>
+            {/* SERVICES */}
             <div style={{ marginBottom: '40px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
               <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '20px' }}>Prestations</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -287,6 +309,47 @@ function ProPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* AVIS */}
+            <div style={{ animation: 'fadeUp 0.6s ease 0.2s both' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase' }}>
+                  Avis clients {avis.length > 0 && `· ${noteMoyenne} ⭐`}
+                </p>
+                <button
+                  onClick={() => navigate(`/avis/${pro.id}`)}
+                  style={{ fontSize: '12px', color: '#c4829a', background: 'transparent', border: '1px solid #c4829a', borderRadius: '20px', padding: '5px 14px', cursor: 'none' }}
+                >
+                  + Laisser un avis
+                </button>
+              </div>
+
+              {avis.length === 0 ? (
+                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '14px', padding: '32px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '14px', color: '#c4b5ac', fontWeight: '300' }}>Aucun avis pour le moment 🌸</p>
+                  <p style={{ fontSize: '12px', color: '#ede8e3', marginTop: '6px' }}>Soyez la première à laisser un avis !</p>
+                </div>
+              ) : (
+                avis.map((a, i) => (
+                  <div key={a.id} className="avis-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>🌸</div>
+                        <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: 0 }}>{a.prenom}</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '2px' }}>
+                        {[1,2,3,4,5].map(n => (
+                          <span key={n} style={{ fontSize: '14px' }}>{n <= a.note ? '⭐' : '☆'}</span>
+                        ))}
+                      </div>
+                    </div>
+                    {a.commentaire && (
+                      <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7', margin: 0 }}>{a.commentaire}</p>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -372,7 +435,6 @@ function ProPage() {
               </div>
             )}
           </div>
-
         </div>
       </div>
 

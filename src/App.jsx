@@ -8,6 +8,7 @@ import Abonnement from './pages/Abonnement'
 import Success from './pages/Success'
 import Recherche from './pages/Recherche'
 import EspaceCliente from './pages/EspaceCliente'
+import Avis from './pages/Avis'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/abonnement" element={<Abonnement />} />
         <Route path="/success" element={<Success />} />
         <Route path="/espace-cliente" element={<EspaceCliente />} />
+        <Route path="/avis/:proId" element={<Avis />} />
       </Routes>
     </BrowserRouter>
   )
