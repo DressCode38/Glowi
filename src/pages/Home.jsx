@@ -73,8 +73,7 @@ function Petales() {
       const burst = setInterval(() => {
         const id = Date.now() + Math.random()
         setPetales(prev => [...prev.slice(-20), {
-          id,
-          left: Math.random() * 100,
+          id, left: Math.random() * 100,
           duration: 7 + Math.random() * 6,
           size: 6 + Math.random() * 9,
           rotation: Math.random() * 360,
@@ -125,9 +124,10 @@ function CarteVilles() {
       <div style={{ position: 'relative', paddingTop: '75%' }}>
         {villes.map((v) => (
           <div key={v.nom}
-            style={{ position: 'absolute', left: `${v.x}%`, top: `${v.y}%`, transform: 'translate(-50%, -50%)', cursor: 'none', zIndex: 2 }}
+            style={{ position: 'absolute', left: `${v.x}%`, top: `${v.y}%`, transform: 'translate(-50%, -50%)', cursor: 'pointer', zIndex: 2 }}
             onMouseEnter={() => setActiveVille(v)}
             onMouseLeave={() => setActiveVille(null)}
+            onClick={() => setActiveVille(activeVille?.nom === v.nom ? null : v)}
           >
             <div style={{
               width: activeVille?.nom === v.nom ? '16px' : '10px',
@@ -142,7 +142,7 @@ function CarteVilles() {
                 position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
                 background: '#fff', border: '1px solid #ede8e3', borderRadius: '10px',
                 padding: '8px 14px', whiteSpace: 'nowrap',
-                boxShadow: '0 4px 20px rgba(196,130,154,0.15)'
+                boxShadow: '0 4px 20px rgba(196,130,154,0.15)', zIndex: 10,
               }}>
                 <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{v.nom}</p>
                 <p style={{ fontSize: '11px', color: '#c4829a', margin: 0 }}>{v.pros} professionnelles</p>
@@ -173,7 +173,7 @@ function Progression() {
         {etapes.map((e, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < etapes.length - 1 ? 1 : 'none' }}>
             <div onClick={() => setActive(i)} style={{
-              width: '44px', height: '44px', borderRadius: '50%', cursor: 'none',
+              width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer',
               background: active >= i ? '#c4829a' : '#ede8e3',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '12px', fontWeight: '500',
@@ -196,9 +196,9 @@ function Progression() {
           </div>
         ))}
       </div>
-      <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px', textAlign: 'left', transition: 'all 0.4s' }}>
+      <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px', textAlign: 'left' }}>
         <p style={{ fontSize: '11px', color: '#c4829a', letterSpacing: '3px', marginBottom: '12px' }}>ÉTAPE {etapes[active].num}</p>
-        <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '400', marginBottom: '10px', color: '#2c2c2c' }}>{etapes[active].titre}</h4>
+        <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '400', marginBottom: '10px', color: '#2c2c2c' }}>{etapes[active].titre}</h4>
         <p style={{ fontSize: '14px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7' }}>{etapes[active].desc}</p>
       </div>
     </div>
@@ -207,6 +207,7 @@ function Progression() {
 
 export default function Home() {
   const navigate = useNavigate()
+  const [menuOuvert, setMenuOuvert] = useState(false)
   const statsRef = useRef()
   const [statsVisible, setStatsVisible] = useState(false)
   const count1 = useCountUp(500, 2000, statsVisible)
@@ -274,12 +275,13 @@ export default function Home() {
           100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
         .btn-sakura {
-          padding: 14px 36px; background: #c4829a; color: #fff;
+          padding: 12px 24px; background: #c4829a; color: #fff;
           border: none; border-radius: 40px; font-size: 13px;
-          letter-spacing: 1.5px; cursor: none;
+          letter-spacing: 1px; cursor: pointer;
           font-family: 'Inter', sans-serif;
           position: relative; overflow: hidden;
           transition: transform 0.2s, background 0.3s;
+          white-space: nowrap;
         }
         .btn-sakura:hover { transform: translateY(-2px); background: #b57089; }
         .btn-sakura::after {
@@ -290,22 +292,44 @@ export default function Home() {
         }
         .btn-sakura:hover::after { left: 150%; }
         .btn-outline {
-          padding: 13px 20px; background: transparent; color: #c4829a;
+          padding: 11px 20px; background: transparent; color: #c4829a;
           border: 1px solid #c4829a; border-radius: 40px; font-size: 13px;
-          letter-spacing: 1px; cursor: none;
+          letter-spacing: 0.5px; cursor: pointer;
           font-family: 'Inter', sans-serif; transition: all 0.3s;
-          position: relative; overflow: hidden;
+          white-space: nowrap;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); transform: translateY(-2px); }
         .card-zen {
           background: #fff; border: 1px solid #ede8e3;
-          border-radius: 16px; padding: 36px 28px;
+          border-radius: 16px; padding: 32px 24px;
           transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
         }
-        .card-zen:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 16px 48px rgba(196,130,154,0.14);
-          border-color: #c4829a;
+        .card-zen:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(196,130,154,0.14); border-color: #c4829a; }
+        .nav-desktop { display: flex; gap: 10px; align-items: center; }
+        .nav-mobile { display: none; }
+        .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 76px; font-weight: 300; line-height: 1.15; margin-bottom: 24px; max-width: 800px; }
+        .section-padding { padding: 100px 60px; }
+        .stats-home { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; max-width: 800px; margin: 0 auto; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin: 0 auto; }
+        .grid-plans { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+        .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+          * { cursor: auto !important; }
+          .nav-desktop { display: none !important; }
+          .nav-mobile { display: flex !important; align-items: center; }
+          .hero-title { font-size: 36px !important; }
+          .section-padding { padding: 48px 16px !important; }
+          .stats-home { gap: 12px !important; }
+          .stats-home > div { min-width: calc(50% - 6px) !important; padding: 20px 16px !important; }
+          .grid-3 { grid-template-columns: 1fr !important; }
+          .grid-plans { flex-direction: column !important; }
+          .grid-plans > * { min-width: unset !important; width: 100% !important; }
+          .hero-btns { flex-direction: column !important; align-items: center !important; }
+          .hero-btns button { width: 100% !important; max-width: 300px; }
+          h3[style*="font-size: 46px"] { font-size: 26px !important; }
+          h3[style*="font-size: 56px"] { font-size: 28px !important; }
+          h2[style*="font-size: 52px"] { font-size: 28px !important; }
         }
       `}</style>
 
@@ -313,63 +337,90 @@ export default function Home() {
       <Petales />
 
       {/* NAVBAR */}
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 60px', borderBottom: '1px solid #ede8e3', position: 'sticky', top: 0, background: 'rgba(250,248,245,0.95)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '400', letterSpacing: '2px' }}>
+      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #ede8e3', position: 'sticky', top: 0, background: 'rgba(250,248,245,0.95)', backdropFilter: 'blur(10px)', zIndex: 100 }}>
+        <h1 onClick={() => navigate('/')} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: '400', letterSpacing: '2px', cursor: 'pointer' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h1>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
+        {/* DESKTOP */}
+        <div className="nav-desktop">
           <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
           <button className="btn-outline" onClick={() => navigate('/espace-cliente')}>Mon espace</button>
           <button className="btn-outline" onClick={() => navigate('/login')}>Connexion pro</button>
           <button className="btn-sakura" onClick={() => navigate('/register')}>Rejoindre Glowi</button>
         </div>
+
+        {/* MOBILE */}
+        <div className="nav-mobile">
+          <button onClick={() => setMenuOuvert(!menuOuvert)} style={{ background: 'transparent', border: '1px solid #c4829a', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', fontSize: '18px', color: '#c4829a' }}>
+            {menuOuvert ? '✕' : '☰'}
+          </button>
+        </div>
       </nav>
 
+      {/* MENU MOBILE */}
+      {menuOuvert && (
+        <div style={{ position: 'fixed', top: '57px', left: 0, right: 0, background: '#fff', borderBottom: '1px solid #ede8e3', padding: '16px', zIndex: 99, display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+          <button onClick={() => { navigate('/recherche'); setMenuOuvert(false) }} style={{ padding: '14px', background: '#fdf6f8', border: '1px solid #ede8e3', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', color: '#2c2c2c', fontFamily: 'Inter, sans-serif', textAlign: 'left' }}>
+            🔍 Trouver une pro
+          </button>
+          <button onClick={() => { navigate('/espace-cliente'); setMenuOuvert(false) }} style={{ padding: '14px', background: '#fdf6f8', border: '1px solid #ede8e3', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', color: '#2c2c2c', fontFamily: 'Inter, sans-serif', textAlign: 'left' }}>
+            👤 Mon espace cliente
+          </button>
+          <button onClick={() => { navigate('/login'); setMenuOuvert(false) }} style={{ padding: '14px', background: '#fdf6f8', border: '1px solid #ede8e3', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', color: '#2c2c2c', fontFamily: 'Inter, sans-serif', textAlign: 'left' }}>
+            🔑 Connexion pro
+          </button>
+          <button onClick={() => { navigate('/register'); setMenuOuvert(false) }} style={{ padding: '14px', background: '#c4829a', border: 'none', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: '500', textAlign: 'left' }}>
+            ✨ Rejoindre Glowi — dès 19€/mois
+          </button>
+        </div>
+      )}
+
       {/* HERO */}
-      <div style={{ minHeight: '92vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '80px 20px', background: 'linear-gradient(180deg, #fdf6f8 0%, #faf8f5 100%)', position: 'relative' }}>
+      <div style={{ minHeight: '92vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '60px 20px', background: 'linear-gradient(180deg, #fdf6f8 0%, #faf8f5 100%)', position: 'relative' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '24px' }}>
             La plateforme des pros du bien-être
           </p>
-          <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '76px', fontWeight: '300', lineHeight: '1.15', marginBottom: '24px', maxWidth: '800px' }}>
+          <h2 className="hero-title">
             Votre art mérite<br />
             <em style={{ color: '#c4829a' }}>une vitrine</em><br />
             à sa hauteur
           </h2>
-          <p style={{ fontSize: '16px', color: '#9c9189', maxWidth: '460px', lineHeight: '1.9', marginBottom: '48px', fontWeight: '300', margin: '0 auto 48px' }}>
+          <p style={{ fontSize: '16px', color: '#9c9189', maxWidth: '460px', lineHeight: '1.9', fontWeight: '300', margin: '0 auto 40px' }}>
             Ongleries, lash artists, headspa, massages — gérez vos réservations avec sérénité.
           </p>
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="hero-btns">
             <button className="btn-sakura" onClick={() => navigate('/register')}>Créer ma page Glowi</button>
             <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
           </div>
-          <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '24px', letterSpacing: '1px' }}>14 jours offerts · Sans engagement · Sans carte bancaire</p>
+          <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '20px', letterSpacing: '1px' }}>14 jours offerts · Sans engagement · Sans carte bancaire</p>
         </AnimatedSection>
       </div>
 
       {/* STATS */}
-      <div ref={statsRef} style={{ padding: '80px 60px', background: '#fff', borderTop: '1px solid #ede8e3', borderBottom: '1px solid #ede8e3' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', flexWrap: 'wrap', maxWidth: '800px', margin: '0 auto' }}>
+      <div ref={statsRef} style={{ padding: '60px 20px', background: '#fff', borderTop: '1px solid #ede8e3', borderBottom: '1px solid #ede8e3' }}>
+        <div className="stats-home">
           {[
             { valeur: count1, suffix: '+', label: 'Professionnelles actives' },
             { valeur: count2, suffix: '%', label: 'De satisfaction client' },
             { valeur: count3, suffix: '', label: 'Jours d\'essai offerts' },
           ].map((stat, i) => (
-            <div key={i} style={{ flex: 1, minWidth: '180px', background: '#fdf6f8', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px 24px', textAlign: 'center' }}>
-              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '56px', fontWeight: '300', color: '#c4829a', margin: '0 0 8px' }}>
+            <div key={i} style={{ flex: 1, minWidth: '140px', background: '#fdf6f8', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px 16px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '48px', fontWeight: '300', color: '#c4829a', margin: '0 0 6px' }}>
                 {stat.valeur}{stat.suffix}
               </p>
-              <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300' }}>{stat.label}</p>
+              <p style={{ fontSize: '12px', color: '#9c9189', fontWeight: '300' }}>{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* PROGRESSION */}
-      <div style={{ padding: '100px 60px', textAlign: 'center' }}>
+      <div className="section-padding" style={{ textAlign: 'center' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Comment ça marche</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '46px', fontWeight: '300', marginBottom: '56px' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', marginBottom: '48px' }}>
             Rejoindre Glowi en<br /><em style={{ color: '#c4829a' }}>4 étapes simples</em>
           </h3>
         </AnimatedSection>
@@ -377,35 +428,35 @@ export default function Home() {
       </div>
 
       {/* CARTE */}
-      <div style={{ padding: '100px 60px', textAlign: 'center', background: '#fdf6f8' }}>
+      <div className="section-padding" style={{ textAlign: 'center', background: '#fdf6f8' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Nos professionnelles</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '46px', fontWeight: '300', marginBottom: '16px' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', marginBottom: '16px' }}>
             Glowi partout<br /><em style={{ color: '#c4829a' }}>en France</em>
           </h3>
-          <p style={{ fontSize: '14px', color: '#9c9189', marginBottom: '48px', fontWeight: '300' }}>Survolez une ville pour découvrir les pros disponibles</p>
+          <p style={{ fontSize: '14px', color: '#9c9189', marginBottom: '40px', fontWeight: '300' }}>Touchez une ville pour voir les pros disponibles</p>
         </AnimatedSection>
         <AnimatedSection delay={0.2}><CarteVilles /></AnimatedSection>
       </div>
 
       {/* PROBLÈME */}
-      <div style={{ padding: '100px 60px', textAlign: 'center' }}>
+      <div className="section-padding" style={{ textAlign: 'center' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Le constat</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '46px', fontWeight: '300', marginBottom: '56px' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', marginBottom: '48px' }}>
             Vous gérez encore vos RDV<br />par Instagram ?
           </h3>
         </AnimatedSection>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap', maxWidth: '900px', margin: '0 auto' }}>
+        <div className="grid-3">
           {[
             { icone: '🌿', titre: 'Des heures perdues', texte: 'Des échanges sans fin en DM pour trouver un créneau disponible' },
             { icone: '🌸', titre: 'Des revenus envolés', texte: 'Chaque RDV manqué représente en moyenne 50€ de perte sèche' },
             { icone: '🪷', titre: 'Sans professionnalité', texte: 'Vos clientes méritent une expérience à la hauteur de votre talent' },
           ].map((item, i) => (
             <AnimatedSection key={i} delay={i * 0.15}>
-              <div className="card-zen" style={{ maxWidth: '270px', textAlign: 'left' }}>
-                <div style={{ fontSize: '28px', marginBottom: '20px' }}>{item.icone}</div>
-                <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400', marginBottom: '12px' }}>{item.titre}</h4>
+              <div className="card-zen" style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: '28px', marginBottom: '16px' }}>{item.icone}</div>
+                <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', fontWeight: '400', marginBottom: '10px' }}>{item.titre}</h4>
                 <p style={{ fontSize: '14px', color: '#9c9189', lineHeight: '1.8', fontWeight: '300' }}>{item.texte}</p>
               </div>
             </AnimatedSection>
@@ -414,14 +465,14 @@ export default function Home() {
       </div>
 
       {/* SOLUTION */}
-      <div style={{ padding: '100px 60px', textAlign: 'center', background: '#fdf6f8' }}>
+      <div className="section-padding" style={{ textAlign: 'center', background: '#fdf6f8' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Ce que Glowi vous offre</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '46px', fontWeight: '300', marginBottom: '56px' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', marginBottom: '48px' }}>
             Tout ce dont vous avez besoin,<br /><em style={{ color: '#c4829a' }}>enfin réuni</em>
           </h3>
         </AnimatedSection>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', maxWidth: '900px', margin: '0 auto' }}>
+        <div className="grid-3">
           {[
             { numero: '01', titre: 'Page pro sur-mesure', texte: 'Une vitrine élégante à votre image, partageable en un lien' },
             { numero: '02', titre: 'Agenda en ligne', texte: 'Vos clientes réservent 24h/24 sans vous déranger' },
@@ -432,8 +483,8 @@ export default function Home() {
           ].map((item, i) => (
             <AnimatedSection key={i} delay={i * 0.1}>
               <div className="card-zen" style={{ textAlign: 'left' }}>
-                <p style={{ fontSize: '11px', color: '#c4829a', letterSpacing: '3px', marginBottom: '16px' }}>{item.numero}</p>
-                <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', fontWeight: '400', marginBottom: '10px' }}>{item.titre}</h4>
+                <p style={{ fontSize: '11px', color: '#c4829a', letterSpacing: '3px', marginBottom: '14px' }}>{item.numero}</p>
+                <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '18px', fontWeight: '400', marginBottom: '10px' }}>{item.titre}</h4>
                 <p style={{ fontSize: '13px', color: '#9c9189', lineHeight: '1.8', fontWeight: '300' }}>{item.texte}</p>
               </div>
             </AnimatedSection>
@@ -442,14 +493,14 @@ export default function Home() {
       </div>
 
       {/* TARIFS */}
-      <div style={{ padding: '100px 60px', textAlign: 'center' }}>
+      <div className="section-padding" style={{ textAlign: 'center' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Tarifs</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '46px', fontWeight: '300', marginBottom: '56px' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', marginBottom: '48px' }}>
             Un loyer, une place sur Glowi
           </h3>
         </AnimatedSection>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' }}>
+        <div className="grid-plans">
           {[
             { nom: 'Starter', prix: '19', features: ['Page pro personnalisée', 'Agenda en ligne', '5 RDV / mois'], featured: false },
             { nom: 'Pro', prix: '29', features: ['RDV illimités', 'Rappels SMS clients', 'Fiche cliente & stats', 'Avis clients'], featured: true },
@@ -459,8 +510,8 @@ export default function Home() {
               <div style={{
                 background: plan.featured ? '#fdf6f8' : '#fff',
                 border: plan.featured ? '1.5px solid #c4829a' : '1px solid #ede8e3',
-                borderRadius: '20px', padding: '40px 32px', minWidth: '240px', textAlign: 'left',
-                position: 'relative',
+                borderRadius: '20px', padding: '36px 28px',
+                minWidth: '240px', textAlign: 'left', position: 'relative',
                 boxShadow: plan.featured ? '0 8px 40px rgba(196,130,154,0.15)' : 'none',
               }}>
                 {plan.featured && (
@@ -468,12 +519,12 @@ export default function Home() {
                     Le plus choisi
                   </div>
                 )}
-                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4b5ac', textTransform: 'uppercase', marginBottom: '20px' }}>{plan.nom}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '32px' }}>
-                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '52px', fontWeight: '300', color: plan.featured ? '#c4829a' : '#2c2c2c' }}>{plan.prix}€</span>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4b5ac', textTransform: 'uppercase', marginBottom: '16px' }}>{plan.nom}</p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '28px' }}>
+                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '48px', fontWeight: '300', color: plan.featured ? '#c4829a' : '#2c2c2c' }}>{plan.prix}€</span>
                   <span style={{ fontSize: '13px', color: '#c4b5ac' }}>/mois</span>
                 </div>
-                <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '24px', marginBottom: '32px' }}>
+                <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '20px', marginBottom: '28px' }}>
                   {plan.features.map((f, j) => (
                     <p key={j} style={{ fontSize: '13px', color: '#9c9189', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '300' }}>
                       <span style={{ color: '#c4829a' }}>✦</span> {f}
@@ -490,14 +541,14 @@ export default function Home() {
       </div>
 
       {/* CTA FINAL */}
-      <div style={{ padding: '100px 60px', textAlign: 'center', background: 'linear-gradient(180deg, #fdf6f8 0%, #faf8f5 100%)', borderTop: '1px solid #ede8e3' }}>
+      <div className="section-padding" style={{ textAlign: 'center', background: 'linear-gradient(180deg, #fdf6f8 0%, #faf8f5 100%)', borderTop: '1px solid #ede8e3' }}>
         <AnimatedSection>
           <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '24px' }}>Prête à rejoindre Glowi ?</p>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '56px', fontWeight: '300', marginBottom: '16px', lineHeight: '1.2' }}>
+          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '48px', fontWeight: '300', marginBottom: '16px', lineHeight: '1.2' }}>
             Votre talent mérite<br /><em style={{ color: '#c4829a' }}>mieux que des DMs</em>
           </h3>
-          <p style={{ fontSize: '14px', color: '#9c9189', marginBottom: '40px', fontWeight: '300' }}>Rejoignez les professionnelles qui ont déjà fait le choix de Glowi</p>
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: '14px', color: '#9c9189', marginBottom: '36px', fontWeight: '300' }}>Rejoignez les professionnelles qui ont déjà fait le choix de Glowi</p>
+          <div className="hero-btns">
             <button className="btn-sakura" onClick={() => navigate('/register')}>Créer ma page gratuitement</button>
             <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
           </div>
@@ -505,16 +556,16 @@ export default function Home() {
       </div>
 
       {/* FOOTER */}
-      <div style={{ borderTop: '1px solid #ede8e3', padding: '32px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#faf8f5' }}>
-        <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400' }}>
+      <div style={{ borderTop: '1px solid #ede8e3', padding: '24px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', background: '#faf8f5' }}>
+        <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', fontWeight: '400' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h4>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <span onClick={() => navigate('/recherche')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Trouver une pro</span>
-          <span onClick={() => navigate('/espace-cliente')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Espace cliente</span>
-          <span onClick={() => navigate('/register')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Devenir pro</span>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <span onClick={() => navigate('/recherche')} style={{ fontSize: '12px', color: '#9c9189', cursor: 'pointer' }}>Trouver une pro</span>
+          <span onClick={() => navigate('/espace-cliente')} style={{ fontSize: '12px', color: '#9c9189', cursor: 'pointer' }}>Espace cliente</span>
+          <span onClick={() => navigate('/register')} style={{ fontSize: '12px', color: '#9c9189', cursor: 'pointer' }}>Devenir pro</span>
         </div>
-        <p style={{ fontSize: '12px', color: '#c4b5ac', letterSpacing: '1px' }}>© 2025 Glowi — Tous droits réservés</p>
+        <p style={{ fontSize: '12px', color: '#c4b5ac' }}>© 2025 Glowi — Tous droits réservés</p>
       </div>
 
     </div>
