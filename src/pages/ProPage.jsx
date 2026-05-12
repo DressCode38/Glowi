@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { collection, getDocs, addDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -70,6 +70,7 @@ function Petales() {
 
 function ProPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [pro, setPro] = useState(null)
   const [loading, setLoading] = useState(true)
   const [serviceChoisi, setServiceChoisi] = useState(null)
@@ -236,12 +237,17 @@ function ProPage() {
 
       {/* NAVBAR */}
       <nav style={{ padding: '20px 60px', borderBottom: '1px solid #ede8e3', background: 'rgba(250,248,245,0.95)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300' }}>
+        <h1 onClick={() => navigate('/')} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', cursor: 'none' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6dbf9e' }} />
-          <span style={{ fontSize: '12px', color: '#9c9189', fontWeight: '300' }}>Disponible aujourd'hui</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button className="btn-outline" style={{ width: 'auto', marginTop: 0, padding: '8px 20px', fontSize: '13px' }} onClick={() => navigate('/recherche')}>
+            ← Toutes les pros
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6dbf9e' }} />
+            <span style={{ fontSize: '12px', color: '#9c9189', fontWeight: '300' }}>Disponible aujourd'hui</span>
+          </div>
         </div>
       </nav>
 
@@ -354,7 +360,15 @@ function ProPage() {
                   {serviceChoisi?.nom}<br />
                   <strong style={{ color: '#c4829a' }}>{dateChoisie} à {heureChoisie}</strong>
                 </p>
-                <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '16px' }}>Un rappel SMS te sera envoyé 24h avant 🌸</p>
+                <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '16px', marginBottom: '24px' }}>
+                  Un rappel SMS te sera envoyé 24h avant 🌸
+                </p>
+                <button className="btn-sakura" onClick={() => navigate('/espace-cliente')}>
+                  Voir mes RDV →
+                </button>
+                <button className="btn-outline" onClick={() => navigate('/')}>
+                  Retour à l'accueil
+                </button>
               </div>
             )}
           </div>
