@@ -4,71 +4,6 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithP
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore'
 import { auth, db, googleProvider } from '../firebase'
 
-function CustomCursor() {
-  const [pos, setPos] = useState({ x: -100, y: -100 })
-  const [clicked, setClicked] = useState(false)
-  useEffect(() => {
-    const move = (e) => setPos({ x: e.clientX, y: e.clientY })
-    const down = () => setClicked(true)
-    const up = () => setClicked(false)
-    window.addEventListener('mousemove', move)
-    window.addEventListener('mousedown', down)
-    window.addEventListener('mouseup', up)
-    return () => {
-      window.removeEventListener('mousemove', move)
-      window.removeEventListener('mousedown', down)
-      window.removeEventListener('mouseup', up)
-    }
-  }, [])
-  return (
-    <div style={{
-      position: 'fixed', left: pos.x, top: pos.y,
-      transform: 'translate(-50%, -50%)',
-      pointerEvents: 'none', zIndex: 99999,
-      fontSize: clicked ? '20px' : '16px',
-      transition: 'font-size 0.1s',
-    }}>🌸</div>
-  )
-}
-
-function Petales() {
-  const [petales, setPetales] = useState([])
-  useEffect(() => {
-    const lance = () => {
-      const burst = setInterval(() => {
-        const id = Date.now() + Math.random()
-        setPetales(prev => [...prev.slice(-20), {
-          id, left: Math.random() * 100,
-          duration: 7 + Math.random() * 6,
-          size: 6 + Math.random() * 9,
-          rotation: Math.random() * 360,
-          opacity: 0.2 + Math.random() * 0.4,
-        }])
-        setTimeout(() => setPetales(prev => prev.filter(p => p.id !== id)), 14000)
-      }, 400)
-      setTimeout(() => clearInterval(burst), 4000)
-    }
-    lance()
-    const pause = setInterval(lance, 12000 + Math.random() * 6000)
-    return () => clearInterval(pause)
-  }, [])
-  return (
-    <>
-      {petales.map(p => (
-        <div key={p.id} style={{
-          position: 'fixed', top: '-20px', left: `${p.left}%`,
-          width: `${p.size}px`, height: `${p.size}px`,
-          background: `rgba(196,130,154,${p.opacity})`,
-          borderRadius: '50% 0 50% 0',
-          zIndex: 9998, pointerEvents: 'none',
-          animation: `fall ${p.duration}s linear forwards`,
-          transform: `rotate(${p.rotation}deg)`,
-        }} />
-      ))}
-    </>
-  )
-}
-
 function EspaceCliente() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -117,7 +52,7 @@ function EspaceCliente() {
       await createUserWithEmailAndPassword(auth, email, password)
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') setErreur('Cet email est déjà utilisé')
-      else if (error.code === 'auth/weak-password') setErreur('Mot de passe trop court (6 caractères minimum)')
+      else if (error.code === 'auth/weak-password') setErreur('Mot de passe trop court')
       else setErreur('Une erreur est survenue')
       setAuthLoading(false)
     }
@@ -134,12 +69,10 @@ function EspaceCliente() {
   }
 
   const handleAnnuler = async (rdvId) => {
-    if (!window.confirm('Confirmer l\'annulation de ce RDV ?')) return
+    if (!window.confirm('Confirmer l\'annulation ?')) return
     try {
       await updateDoc(doc(db, 'rdvs', rdvId), { statut: 'annulé' })
-    } catch (e) {
-      console.error(e)
-    }
+    } catch (e) { console.error(e) }
   }
 
   const aujourd_hui = new Date().toISOString().split('T')[0]
@@ -148,138 +81,89 @@ function EspaceCliente() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'none' }}>
+      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#c4829a' }}>Chargement... 🌸</p>
       </div>
     )
   }
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5', cursor: 'none' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5' }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Inter:wght@300;400;500&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @keyframes fall {
-          0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 0.7; }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         .input-zen {
           width: 100%; padding: 12px 16px;
           border: 1px solid #ede8e3; border-radius: 12px;
           font-size: 14px; font-family: 'Inter', sans-serif;
           background: #faf8f5; color: #2c2c2c; outline: none;
-          transition: border-color 0.3s, box-shadow 0.3s;
-          box-sizing: border-box; cursor: none;
+          transition: border-color 0.3s, box-shadow 0.3s; box-sizing: border-box;
         }
-        .input-zen:focus {
-          border-color: #c4829a;
-          box-shadow: 0 0 0 3px rgba(196,130,154,0.1);
-          background: #fff;
-        }
+        .input-zen:focus { border-color: #c4829a; box-shadow: 0 0 0 3px rgba(196,130,154,0.1); background: #fff; }
         .btn-sakura {
-          width: 100%; padding: 14px; background: #c4829a;
-          color: #fff; border: none; border-radius: 40px;
-          font-size: 14px; letter-spacing: 1px; cursor: none;
-          font-family: 'Inter', sans-serif;
-          position: relative; overflow: hidden;
-          transition: transform 0.2s, background 0.3s;
+          width: 100%; padding: 14px; background: #c4829a; color: #fff;
+          border: none; border-radius: 40px; font-size: 14px; letter-spacing: 1px;
+          cursor: pointer; font-family: 'Inter', sans-serif; transition: transform 0.2s, background 0.3s;
         }
         .btn-sakura:hover { transform: translateY(-2px); background: #b57089; }
-        .btn-sakura::after {
-          content: ''; position: absolute; top: 0; left: -100%;
-          width: 60%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-          transform: skewX(-20deg); transition: left 0.5s;
-        }
-        .btn-sakura:hover::after { left: 150%; }
         .btn-outline {
-          padding: 10px 24px; background: transparent; color: #c4829a;
+          padding: 10px 20px; background: transparent; color: #c4829a;
           border: 1px solid #c4829a; border-radius: 40px; font-size: 13px;
-          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
+          cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); }
         .btn-google {
-          width: 100%; padding: 13px; background: #fff;
-          color: #2c2c2c; border: 1px solid #ede8e3;
-          border-radius: 40px; font-size: 14px; cursor: none;
-          font-family: 'Inter', sans-serif;
-          transition: all 0.3s; display: flex;
-          align-items: center; justify-content: center; gap: 10px;
+          width: 100%; padding: 13px; background: #fff; color: #2c2c2c;
+          border: 1px solid #ede8e3; border-radius: 40px; font-size: 14px;
+          cursor: pointer; font-family: 'Inter', sans-serif;
+          transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
           margin-bottom: 20px;
         }
-        .btn-google:hover { border-color: #c4829a; transform: translateY(-1px); }
+        .btn-google:hover { border-color: #c4829a; }
         .btn-annuler {
-          padding: 6px 14px; background: transparent; color: #dc2626;
+          padding: 5px 12px; background: transparent; color: #dc2626;
           border: 1px solid #fecaca; border-radius: 20px; font-size: 11px;
-          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
+          cursor: pointer; font-family: 'Inter', sans-serif;
         }
-        .btn-annuler:hover { background: #fef2f2; }
         .btn-avis {
-          padding: 6px 14px; background: transparent; color: #c4829a;
+          padding: 5px 12px; background: transparent; color: #c4829a;
           border: 1px solid #c4829a; border-radius: 20px; font-size: 11px;
-          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
-          margin-top: 4px;
+          cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 4px;
         }
-        .btn-avis:hover { background: rgba(196,130,154,0.08); }
         .rdv-card {
-          background: #fff; border: 1px solid #ede8e3;
-          border-radius: 16px; padding: 20px 24px;
-          margin-bottom: 12px; transition: all 0.3s;
-          animation: fadeUp 0.5s ease forwards;
+          background: #fff; border: 1px solid #ede8e3; border-radius: 16px;
+          padding: 18px 20px; margin-bottom: 12px;
         }
-        .rdv-card:hover { box-shadow: 0 4px 20px rgba(196,130,154,0.1); }
-        .tab-btn {
-          padding: 10px 24px; border-radius: 40px; font-size: 13px;
-          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
-          border: 1px solid #ede8e3; background: #fff; color: #9c9189;
-        }
-        .tab-btn.active { background: #c4829a; color: #fff; border-color: #c4829a; }
-        .separateur { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .separateur-line { flex: 1; height: 1px; background: #ede8e3; }
-        .separateur-text { font-size: 12px; color: #c4b5ac; }
         .eye-btn {
-          position: absolute; right: 14px; top: 50%;
-          transform: translateY(-50%); cursor: none;
-          background: none; border: none; font-size: 16px;
-          color: #c4b5ac; padding: 0; line-height: 1;
+          position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; font-size: 16px; color: #c4b5ac; cursor: pointer;
+        }
+        .stats-cliente { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+        @media (max-width: 768px) {
+          .stats-cliente { grid-template-columns: 1fr !important; gap: 8px !important; }
         }
       `}</style>
 
-      <CustomCursor />
-      <Petales />
-
       {/* NAVBAR */}
-      <nav style={{ padding: '20px 60px', borderBottom: '1px solid #ede8e3', background: 'rgba(250,248,245,0.95)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <h1 onClick={() => navigate('/')} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '26px', fontWeight: '300', cursor: 'none' }}>
+      <nav style={{ padding: '16px 20px', borderBottom: '1px solid #ede8e3', background: 'rgba(250,248,245,0.95)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+        <h1 onClick={() => navigate('/')} style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', cursor: 'pointer' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h1>
-        {user && (
-          <button className="btn-outline" onClick={() => signOut(auth)}>Déconnexion</button>
-        )}
+        {user && <button className="btn-outline" onClick={() => signOut(auth)}>Déconnexion</button>}
       </nav>
 
-      {/* PAGE NON CONNECTÉE */}
+      {/* NON CONNECTÉE */}
       {!user && (
-        <div style={{ minHeight: 'calc(100vh - 70px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
-          <div style={{ width: '100%', maxWidth: '400px', animation: 'fadeUp 0.6s ease forwards' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', minHeight: 'calc(100vh - 57px)' }}>
+          <div style={{ width: '100%', maxWidth: '400px', background: '#fff', borderRadius: '20px', padding: '36px 28px', boxShadow: '0 8px 40px rgba(196,130,154,0.1)' }}>
 
-            <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'center' }}>Espace cliente</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px', textAlign: 'center' }}>
-              {mode === 'connexion' ? 'Connexion' : 'Créer un compte'}
-            </h2>
-            <p style={{ fontSize: '13px', color: '#c4b5ac', marginBottom: '32px', textAlign: 'center', fontWeight: '300' }}>
-              {mode === 'connexion' ? 'Pas encore de compte ?' : 'Déjà un compte ?'}{' '}
-              <span onClick={() => { setMode(mode === 'connexion' ? 'inscription' : 'connexion'); setErreur('') }} style={{ color: '#c4829a', cursor: 'none' }}>
-                {mode === 'connexion' ? 'S\'inscrire' : 'Se connecter'}
-              </span>
-            </p>
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Espace cliente</p>
+              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c' }}>
+                {mode === 'connexion' ? 'Connexion' : 'Créer un compte'}
+              </h2>
+            </div>
 
             <button className="btn-google" onClick={handleGoogle} disabled={authLoading}>
               <svg width="18" height="18" viewBox="0 0 18 18">
@@ -291,10 +175,10 @@ function EspaceCliente() {
               Continuer avec Google
             </button>
 
-            <div className="separateur">
-              <div className="separateur-line" />
-              <span className="separateur-text">ou</span>
-              <div className="separateur-line" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ flex: 1, height: '1px', background: '#ede8e3' }} />
+              <span style={{ fontSize: '12px', color: '#c4b5ac' }}>ou</span>
+              <div style={{ flex: 1, height: '1px', background: '#ede8e3' }} />
             </div>
 
             {erreur && (
@@ -304,12 +188,12 @@ function EspaceCliente() {
             )}
 
             <form onSubmit={mode === 'connexion' ? handleConnexion : handleInscription}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>ADRESSE EMAIL</label>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '6px', letterSpacing: '0.5px' }}>EMAIL</label>
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ton@email.com" required className="input-zen" />
               </div>
-              <div style={{ marginBottom: '28px' }}>
-                <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>MOT DE PASSE</label>
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '6px', letterSpacing: '0.5px' }}>MOT DE PASSE</label>
                 <div style={{ position: 'relative' }}>
                   <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="input-zen" style={{ paddingRight: '44px' }} />
                   <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
@@ -321,137 +205,103 @@ function EspaceCliente() {
                 {authLoading ? '✦ Chargement...' : mode === 'connexion' ? 'Se connecter' : 'Créer mon compte'}
               </button>
             </form>
+
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#9c9189', marginTop: '20px', fontWeight: '300' }}>
+              {mode === 'connexion' ? 'Pas encore de compte ?' : 'Déjà un compte ?'}{' '}
+              <span onClick={() => { setMode(mode === 'connexion' ? 'inscription' : 'connexion'); setErreur('') }} style={{ color: '#c4829a', cursor: 'pointer' }}>
+                {mode === 'connexion' ? 'S\'inscrire' : 'Se connecter'}
+              </span>
+            </p>
           </div>
         </div>
       )}
 
-      {/* PAGE CONNECTÉE */}
+      {/* CONNECTÉE */}
       {user && (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 24px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
 
-          {/* HEADER */}
-          <div style={{ marginBottom: '40px', animation: 'fadeUp 0.6s ease forwards' }}>
+          <div style={{ marginBottom: '32px' }}>
             <p style={{ fontSize: '11px', letterSpacing: '4px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Espace cliente</p>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', color: '#2c2c2c', marginBottom: '4px' }}>
-              Bonjour 🌸
-            </h2>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c', marginBottom: '4px' }}>Bonjour 🌸</h2>
             <p style={{ fontSize: '13px', color: '#c4b5ac', fontWeight: '300' }}>{user.email}</p>
           </div>
 
-          {/* STATS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px' }}>
+          <div className="stats-cliente">
             {[
               { label: 'RDV à venir', valeur: rdvsAVenir.length, couleur: '#c4829a' },
               { label: 'RDV passés', valeur: rdvsPasses.filter(r => r.statut !== 'annulé').length, couleur: '#9b8ec4' },
-              { label: 'RDV annulés', valeur: rdvs.filter(r => r.statut === 'annulé').length, couleur: '#e8a87c' },
+              { label: 'Annulés', valeur: rdvs.filter(r => r.statut === 'annulé').length, couleur: '#e8a87c' },
             ].map((s, i) => (
-              <div key={i} style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '20px 24px', animation: `fadeUp 0.5s ease ${i * 0.1}s both` }}>
-                <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 8px', fontWeight: '300' }}>{s.label}</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: s.couleur, margin: 0 }}>{s.valeur}</p>
+              <div key={i} style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '14px', padding: '18px 20px' }}>
+                <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 6px', fontWeight: '300' }}>{s.label}</p>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: s.couleur, margin: 0 }}>{s.valeur}</p>
               </div>
             ))}
           </div>
 
-          {/* ONGLETS */}
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
-            <button className="tab-btn active">
-              RDV à venir ({rdvsAVenir.length})
-            </button>
-            <button className="tab-btn" onClick={() => navigate('/recherche')}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+            <button className="btn-sakura" style={{ flex: 1, minWidth: '140px' }} onClick={() => navigate('/recherche')}>
               🔍 Trouver une pro
             </button>
           </div>
 
-          {/* LISTE RDV À VENIR */}
           {rdvsAVenir.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', background: '#fff', borderRadius: '20px', border: '1px solid #ede8e3' }}>
+            <div style={{ textAlign: 'center', padding: '48px 20px', background: '#fff', borderRadius: '20px', border: '1px solid #ede8e3' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📅</div>
-              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>
-                Aucun RDV à venir
-              </h3>
-              <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '24px' }}>
-                Trouve une pro et réserve ta prochaine séance 🌸
-              </p>
-              <button className="btn-outline" onClick={() => navigate('/recherche')}>
-                Trouver une pro →
-              </button>
+              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>Aucun RDV à venir</h3>
+              <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '20px' }}>Trouve une pro et réserve ta prochaine séance 🌸</p>
+              <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro →</button>
             </div>
           ) : (
             rdvsAVenir.map((rdv, i) => (
-              <div key={rdv.id} className="rdv-card" style={{ animationDelay: `${i * 0.1}s` }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
-                      🌸
-                    </div>
+              <div key={rdv.id} className="rdv-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🌸</div>
                     <div>
-                      <p style={{ fontSize: '15px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 3px' }}>{rdv.proNom}</p>
-                      <p style={{ fontSize: '13px', color: '#9c9189', margin: '0 0 3px', fontWeight: '300' }}>{rdv.service}</p>
-                      <p style={{ fontSize: '12px', color: '#c4829a', margin: 0 }}>
-                        {rdv.date} à {rdv.heure} · {rdv.prix}€
-                      </p>
+                      <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 3px' }}>{rdv.proNom}</p>
+                      <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 3px', fontWeight: '300' }}>{rdv.service}</p>
+                      <p style={{ fontSize: '12px', color: '#c4829a', margin: 0 }}>{rdv.date} à {rdv.heure} · {rdv.prix}€</p>
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                    <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>
-                      {rdv.statut}
-                    </span>
-                    <button className="btn-annuler" onClick={() => handleAnnuler(rdv.id)}>
-                      Annuler
-                    </button>
-                    <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>
-                      ⭐ Laisser un avis
-                    </button>
+                    <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>{rdv.statut}</span>
+                    <button className="btn-annuler" onClick={() => handleAnnuler(rdv.id)}>Annuler</button>
+                    <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>⭐ Laisser un avis</button>
                   </div>
                 </div>
               </div>
             ))
           )}
 
-          {/* RDV PASSÉS */}
           {rdvsPasses.length > 0 && (
-            <div style={{ marginTop: '40px' }}>
+            <div style={{ marginTop: '32px' }}>
               <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4b5ac', textTransform: 'uppercase', marginBottom: '16px' }}>Historique</p>
-              {rdvsPasses.map((rdv, i) => (
-                <div key={rdv.id} className="rdv-card" style={{ opacity: 0.6, animationDelay: `${i * 0.1}s` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f5f0ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
-                        🌸
-                      </div>
+              {rdvsPasses.map((rdv) => (
+                <div key={rdv.id} className="rdv-card" style={{ opacity: 0.6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#f5f0ed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>🌸</div>
                       <div>
-                        <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.proNom}</p>
-                        <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service} · {rdv.date}</p>
+                        <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.proNom}</p>
+                        <p style={{ fontSize: '11px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service} · {rdv.date}</p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                      <span style={{
-                        background: rdv.statut === 'annulé' ? '#fef2f2' : '#f5f0ed',
-                        color: rdv.statut === 'annulé' ? '#dc2626' : '#9c9189',
-                        fontSize: '11px', padding: '3px 10px', borderRadius: '20px'
-                      }}>
-                        {rdv.statut}
-                      </span>
-                      {rdv.statut !== 'annulé' && (
-                        <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>
-                          ⭐ Laisser un avis
-                        </button>
-                      )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                      <span style={{ background: rdv.statut === 'annulé' ? '#fef2f2' : '#f5f0ed', color: rdv.statut === 'annulé' ? '#dc2626' : '#9c9189', fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>{rdv.statut}</span>
+                      {rdv.statut !== 'annulé' && <button className="btn-avis" onClick={() => navigate(`/avis/${rdv.proId}`)}>⭐ Avis</button>}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
         </div>
       )}
 
-      {/* FOOTER */}
-      <div style={{ textAlign: 'center', padding: '32px', borderTop: '1px solid #ede8e3', marginTop: '40px' }}>
+      <div style={{ textAlign: 'center', padding: '24px', borderTop: '1px solid #ede8e3', marginTop: '40px' }}>
         <p style={{ fontSize: '12px', color: '#c4b5ac' }}>© 2025 Glowi ✦ La plateforme des pros du bien-être</p>
       </div>
-
     </div>
   )
 }
