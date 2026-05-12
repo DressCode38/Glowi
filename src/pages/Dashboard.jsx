@@ -46,7 +46,7 @@ function Dashboard() {
     { id: 'rdvs', icone: '📅', label: 'Rendez-vous' },
     { id: 'clientes', icone: '👤', label: 'Clientes' },
     { id: 'services', icone: '✨', label: 'Services' },
-    { id: 'stats', icone: '📊', label: 'Statistiques' },
+    { id: 'stats', icone: '📊', label: 'Stats' },
     { id: 'page', icone: '🌸', label: 'Ma page' },
   ]
 
@@ -85,7 +85,7 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'none' }}>
+      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', color: '#c4829a' }}>Glowi</p>
           <p style={{ fontSize: '13px', color: '#c4b5ac', marginTop: '8px' }}>Chargement...</p>
@@ -102,7 +102,7 @@ function Dashboard() {
   const rdvsAujourdhui = rdvs.filter(r => r.date === aujourd_hui)
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5', display: 'flex', cursor: 'none' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5' }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Inter:wght@300;400;500&display=swap');
@@ -115,12 +115,21 @@ function Dashboard() {
           from { opacity: 0; transform: translateY(-10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .sidebar {
+          width: 240px; background: #fff; border-right: 1px solid #ede8e3;
+          display: flex; flex-direction: column; padding: 32px 16px;
+          position: fixed; height: 100vh; z-index: 10;
+        }
+        .main-content { margin-left: 240px; flex: 1; padding: 40px 48px; }
+        .mobile-nav { display: none; }
         .menu-item {
           display: flex; align-items: center; gap: 12px;
           padding: 12px 16px; border-radius: 12px;
-          cursor: none; transition: all 0.3s;
+          cursor: pointer; transition: all 0.3s;
           font-size: 13px; color: #9c9189; font-weight: 300;
-          margin-bottom: 4px;
+          margin-bottom: 4px; border: none; background: transparent;
+          width: 100%; text-align: left; font-family: 'Inter', sans-serif;
         }
         .menu-item:hover { background: rgba(196,130,154,0.08); color: #c4829a; }
         .menu-item.active { background: #fdf6f8; color: #c4829a; font-weight: 500; }
@@ -134,7 +143,6 @@ function Dashboard() {
         .rdv-row {
           display: flex; align-items: center; justify-content: space-between;
           padding: 14px 0; border-bottom: 1px solid #f5f0ed;
-          animation: fadeUp 0.5s ease forwards;
         }
         .rdv-row:last-child { border-bottom: none; }
         .badge-confirme { background: #e8f5ee; color: #1a7a45; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
@@ -143,14 +151,14 @@ function Dashboard() {
         .btn-sakura {
           padding: 10px 24px; background: #c4829a; color: #fff;
           border: none; border-radius: 40px; font-size: 13px;
-          cursor: none; font-family: 'Inter', sans-serif;
+          cursor: pointer; font-family: 'Inter', sans-serif;
           transition: all 0.3s; letter-spacing: 0.5px;
         }
         .btn-sakura:hover { background: #b57089; transform: translateY(-1px); }
         .btn-outline {
           padding: 10px 24px; background: transparent; color: #c4829a;
           border: 1px solid #c4829a; border-radius: 40px; font-size: 13px;
-          cursor: none; font-family: 'Inter', sans-serif; transition: all 0.3s;
+          cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); }
         .success-banner {
@@ -160,282 +168,288 @@ function Dashboard() {
           display: flex; align-items: center; gap: 16px;
           animation: slideDown 0.6s ease forwards;
         }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+        .right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+        @media (max-width: 768px) {
+          .sidebar { display: none !important; }
+          .main-content { margin-left: 0 !important; padding: 16px !important; }
+          .mobile-nav { display: block !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; margin-bottom: 20px !important; }
+          .content-grid { grid-template-columns: 1fr !important; }
+          .stat-card { padding: 16px !important; }
+          * { cursor: auto !important; }
+        }
       `}</style>
 
       <CustomCursor />
 
-      {/* SIDEBAR */}
-      <div style={{
-        width: '240px', background: '#fff', borderRight: '1px solid #ede8e3',
-        display: 'flex', flexDirection: 'column', padding: '32px 16px',
-        position: 'fixed', height: '100vh', zIndex: 10,
-      }}>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px', paddingLeft: '16px' }}>
-          Glo<span style={{ color: '#c4829a' }}>wi</span>
-        </h1>
-        <p style={{ fontSize: '11px', color: '#c4b5ac', letterSpacing: '1px', paddingLeft: '16px', marginBottom: '40px' }}>Espace pro</p>
-        <nav style={{ flex: 1 }}>
-          {menu.map((m) => (
-            <div key={m.id} className={`menu-item ${activeMenu === m.id ? 'active' : ''}`} onClick={() => setActiveMenu(m.id)}>
-              <span style={{ fontSize: '16px' }}>{m.icone}</span>
-              {m.label}
-            </div>
-          ))}
-        </nav>
-        <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '20px', paddingLeft: '16px' }}>
-          <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', marginBottom: '2px' }}>{pro?.nom}</p>
-          <p style={{ fontSize: '11px', color: '#c4b5ac', marginBottom: '12px' }}>Plan {planLabel} · {pro?.essaiActif ? '14j restants' : 'Actif'}</p>
-          <button className="btn-outline" style={{ width: '100%', fontSize: '12px', padding: '8px' }} onClick={handleDeconnexion}>
+      {/* NAVBAR MOBILE */}
+      <div className="mobile-nav">
+        <nav style={{ background: '#fff', borderBottom: '1px solid #ede8e3', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300' }}>
+            Glo<span style={{ color: '#c4829a' }}>wi</span>
+          </h1>
+          <button onClick={handleDeconnexion} style={{ fontSize: '12px', color: '#c4829a', background: 'transparent', border: '1px solid #c4829a', borderRadius: '20px', padding: '6px 14px', cursor: 'pointer' }}>
             Déconnexion
           </button>
+        </nav>
+        <div style={{ display: 'flex', overflowX: 'auto', borderBottom: '1px solid #ede8e3', background: '#fff', padding: '8px 12px', gap: '8px', WebkitOverflowScrolling: 'touch' }}>
+          {menu.map((m) => (
+            <button key={m.id} onClick={() => setActiveMenu(m.id)} style={{ padding: '8px 14px', borderRadius: '20px', border: 'none', background: activeMenu === m.id ? '#c4829a' : '#faf8f5', color: activeMenu === m.id ? '#fff' : '#9c9189', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif', flexShrink: 0 }}>
+              {m.icone} {m.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* CONTENU */}
-      <div style={{ marginLeft: '240px', flex: 1, padding: '40px 48px' }}>
+      <div className="dashboard-layout">
 
-        {paiementReussi && (
-          <div className="success-banner">
-            <span style={{ fontSize: '32px' }}>🎉</span>
-            <div>
-              <p style={{ fontSize: '15px', fontWeight: '500', color: '#1a7a45', margin: '0 0 4px' }}>Paiement réussi — Bienvenue sur Glowi !</p>
-              <p style={{ fontSize: '13px', color: '#2d9e5f', margin: 0, fontWeight: '300' }}>Ton abonnement {planLabel} est maintenant actif 🌸</p>
-            </div>
+        {/* SIDEBAR DESKTOP */}
+        <div className="sidebar">
+          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px', paddingLeft: '16px' }}>
+            Glo<span style={{ color: '#c4829a' }}>wi</span>
+          </h1>
+          <p style={{ fontSize: '11px', color: '#c4b5ac', letterSpacing: '1px', paddingLeft: '16px', marginBottom: '40px' }}>Espace pro</p>
+          <nav style={{ flex: 1 }}>
+            {menu.map((m) => (
+              <button key={m.id} className={`menu-item ${activeMenu === m.id ? 'active' : ''}`} onClick={() => setActiveMenu(m.id)}>
+                <span style={{ fontSize: '16px' }}>{m.icone}</span>
+                {m.label}
+              </button>
+            ))}
+          </nav>
+          <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '20px', paddingLeft: '16px' }}>
+            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', marginBottom: '2px' }}>{pro?.nom}</p>
+            <p style={{ fontSize: '11px', color: '#c4b5ac', marginBottom: '12px' }}>Plan {planLabel}</p>
+            <button className="btn-outline" style={{ width: '100%', fontSize: '12px', padding: '8px' }} onClick={handleDeconnexion}>
+              Déconnexion
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* ACCUEIL */}
-        {activeMenu === 'accueil' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        {/* CONTENU PRINCIPAL */}
+        <div className="main-content">
+
+          {paiementReussi && (
+            <div className="success-banner">
+              <span style={{ fontSize: '32px' }}>🎉</span>
               <div>
-                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '6px' }}>Bonjour 🌸</p>
-                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>{pro?.nom}</h2>
-              </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-outline" onClick={() => navigate('/abonnement')}>Gérer mon abonnement</button>
-                <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page publique</button>
+                <p style={{ fontSize: '15px', fontWeight: '500', color: '#1a7a45', margin: '0 0 4px' }}>Paiement réussi !</p>
+                <p style={{ fontSize: '13px', color: '#2d9e5f', margin: 0, fontWeight: '300' }}>Ton abonnement {planLabel} est actif 🌸</p>
               </div>
             </div>
+          )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
-              {[
-                { label: 'RDV ce mois', valeur: rdvs.filter(r => r.date?.startsWith(new Date().toISOString().slice(0,7))).length, evolution: 'Ce mois', couleur: '#c4829a' },
-                { label: 'RDV aujourd\'hui', valeur: rdvsAujourdhui.length, evolution: 'Aujourd\'hui', couleur: '#9b8ec4' },
-                { label: 'Total clientes', valeur: new Set(rdvs.map(r => r.clientTelephone)).size, evolution: 'Uniques', couleur: '#6dbf9e' },
-                { label: 'RDV à venir', valeur: rdvsAVenir.length, evolution: 'Planifiés', couleur: '#e8a87c' },
-              ].map((stat, i) => (
-                <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.1}s` }}>
-                  <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 12px', fontWeight: '300' }}>{stat.label}</p>
-                  <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '42px', fontWeight: '300', color: stat.couleur, margin: '0 0 6px' }}>{stat.valeur}</p>
-                  <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{stat.evolution}</p>
+          {/* ACCUEIL */}
+          {activeMenu === 'accueil' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '6px' }}>Bonjour 🌸</p>
+                  <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>{pro?.nom}</h2>
                 </div>
-              ))}
-            </div>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button className="btn-outline" onClick={() => navigate('/abonnement')} style={{ fontSize: '12px', padding: '8px 16px' }}>Abonnement</button>
+                  <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)} style={{ fontSize: '12px', padding: '8px 16px' }}>Ma page</button>
+                </div>
+              </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
-              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400', color: '#2c2c2c' }}>Prochains rendez-vous</h3>
-                  <span style={{ fontSize: '12px', color: '#c4829a' }}>{rdvsAVenir.length} RDV</span>
-                </div>
-                {rdvsAVenir.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
-                    <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
-                    <p style={{ fontSize: '14px', margin: '0 0 4px' }}>Aucun RDV pour le moment</p>
-                    <p style={{ fontSize: '12px' }}>Partage ta page Glowi 🌸</p>
+              <div className="stats-grid">
+                {[
+                  { label: 'RDV ce mois', valeur: rdvs.filter(r => r.date?.startsWith(new Date().toISOString().slice(0,7))).length, couleur: '#c4829a' },
+                  { label: 'Aujourd\'hui', valeur: rdvsAujourdhui.length, couleur: '#9b8ec4' },
+                  { label: 'Clientes', valeur: new Set(rdvs.map(r => r.clientTelephone)).size, couleur: '#6dbf9e' },
+                  { label: 'À venir', valeur: rdvsAVenir.length, couleur: '#e8a87c' },
+                ].map((stat, i) => (
+                  <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <p style={{ fontSize: '11px', color: '#9c9189', margin: '0 0 8px', fontWeight: '300' }}>{stat.label}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: stat.couleur, margin: 0 }}>{stat.valeur}</p>
                   </div>
-                ) : (
-                  rdvsAVenir.slice(0, 5).map((rdv) => (
-                    <div key={rdv.id} className="rdv-row">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🌸</div>
-                        <div>
-                          <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
-                          <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service}</p>
+                ))}
+              </div>
+
+              <div className="content-grid">
+                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '20px', fontWeight: '400', color: '#2c2c2c' }}>Prochains RDV</h3>
+                    <span style={{ fontSize: '12px', color: '#c4829a' }}>{rdvsAVenir.length}</span>
+                  </div>
+                  {rdvsAVenir.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#c4b5ac' }}>
+                      <div style={{ fontSize: '36px', marginBottom: '10px' }}>📅</div>
+                      <p style={{ fontSize: '13px' }}>Aucun RDV 🌸</p>
+                    </div>
+                  ) : (
+                    rdvsAVenir.slice(0, 5).map((rdv) => (
+                      <div key={rdv.id} className="rdv-row">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🌸</div>
+                          <div>
+                            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
+                            <p style={{ fontSize: '11px', color: '#9c9189', margin: 0 }}>{rdv.service}</p>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ fontSize: '12px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.heure}</p>
+                          <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{rdv.date}</p>
                         </div>
                       </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.heure}</p>
-                        <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{rdv.date}</p>
+                    ))
+                  )}
+                </div>
+
+                <div className="right-panel">
+                  <div style={{ background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', border: '1px solid #e8d5db', borderRadius: '16px', padding: '20px' }}>
+                    <p style={{ fontSize: '11px', letterSpacing: '2px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '10px' }}>Abonnement</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', color: '#2c2c2c', marginBottom: '4px' }}>Plan {planLabel}</p>
+                    <p style={{ fontSize: '12px', color: '#9c9189', marginBottom: '16px', fontWeight: '300' }}>{planPrix}/mois</p>
+                    <button className="btn-sakura" style={{ width: '100%', fontSize: '12px', padding: '10px' }} onClick={() => navigate('/abonnement')}>Gérer →</button>
+                  </div>
+                  <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '20px' }}>
+                    <p style={{ fontSize: '11px', letterSpacing: '2px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '10px' }}>Ma page</p>
+                    <p style={{ fontSize: '12px', color: '#9c9189', marginBottom: '14px', fontWeight: '300' }}>glowi.fr/{slugNom}</p>
+                    <button className="btn-outline" style={{ width: '100%', fontSize: '12px', padding: '8px' }} onClick={() => navigate(`/pro/${slugNom}`)}>Voir →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* RENDEZ-VOUS */}
+          {activeMenu === 'rdvs' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Rendez-vous</p>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>Tous les RDV</h2>
+              </div>
+              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '20px' }}>
+                {rdvs.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
+                    <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
+                    <p>Aucun RDV 🌸</p>
+                  </div>
+                ) : (
+                  rdvs.map((rdv) => (
+                    <div key={rdv.id} className="rdv-row" style={{ flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🌸</div>
+                        <div>
+                          <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
+                          <p style={{ fontSize: '11px', color: '#9c9189', margin: 0 }}>{rdv.service} · {rdv.date} à {rdv.heure}</p>
+                        </div>
                       </div>
-                      <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : rdv.statut === 'annulé' ? 'badge-annule' : 'badge-attente'}>
-                        {rdv.statut}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <p style={{ fontSize: '13px', fontWeight: '500', color: '#c4829a', margin: 0 }}>{rdv.prix}€</p>
+                        <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : rdv.statut === 'annulé' ? 'badge-annule' : 'badge-attente'}>{rdv.statut}</span>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
+            </div>
+          )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', border: '1px solid #e8d5db', borderRadius: '16px', padding: '24px' }}>
-                  <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Mon abonnement</p>
-                  <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '4px' }}>Plan {planLabel}</p>
-                  <p style={{ fontSize: '12px', color: '#9c9189', marginBottom: '20px', fontWeight: '300' }}>{planPrix}/mois · {pro?.essaiActif ? '14 jours restants' : 'Actif'}</p>
-                  <button className="btn-sakura" style={{ width: '100%', fontSize: '13px' }} onClick={() => navigate('/abonnement')}>Gérer mon abonnement</button>
-                </div>
-                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
-                  <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Ma page Glowi</p>
-                  <div style={{ background: '#faf8f5', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#c4b5ac' }}>glowi.fr/</span>
-                    <span style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c' }}>{slugNom}</span>
-                  </div>
-                  <button className="btn-outline" style={{ width: '100%', fontSize: '12px' }} onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page →</button>
-                </div>
-                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
-                  <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Conseil du jour</p>
-                  <p style={{ fontSize: '13px', color: '#9c9189', lineHeight: '1.7', fontWeight: '300' }}>Partage ton lien Glowi dans ta bio Instagram 🌸</p>
-                </div>
+          {/* CLIENTES */}
+          {activeMenu === 'clientes' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Clientes</p>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>{new Set(rdvs.map(r => r.clientTelephone)).size} clientes</h2>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* RENDEZ-VOUS */}
-        {activeMenu === 'rdvs' && (
-          <div>
-            <div style={{ marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Mes rendez-vous</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>Tous les RDV</h2>
-            </div>
-            <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '28px' }}>
-              {rdvs.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
-                  <p style={{ fontSize: '14px' }}>Aucun RDV pour le moment 🌸</p>
-                </div>
-              ) : (
-                rdvs.map((rdv) => (
-                  <div key={rdv.id} className="rdv-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🌸</div>
+              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '20px' }}>
+                {[...new Map(rdvs.map(r => [r.clientTelephone, r])).values()].map((rdv, i) => (
+                  <div key={i} className="rdv-row">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>🌸</div>
                       <div>
-                        <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
-                        <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service} · {rdv.clientTelephone}</p>
+                        <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
+                        <p style={{ fontSize: '11px', color: '#9c9189', margin: 0 }}>{rdv.clientTelephone}</p>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.heure}</p>
-                      <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{rdv.date}</p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: '14px', fontWeight: '500', color: '#c4829a', margin: '0 0 4px' }}>{rdv.prix}€</p>
-                      <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : rdv.statut === 'annulé' ? 'badge-annule' : 'badge-attente'}>{rdv.statut}</span>
-                    </div>
+                    <p style={{ fontSize: '12px', color: '#9c9189', margin: 0 }}>{rdvs.filter(r => r.clientTelephone === rdv.clientTelephone).length} RDV</p>
                   </div>
-                ))
-              )}
+                ))}
+                {rdvs.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
+                    <div style={{ fontSize: '40px', marginBottom: '12px' }}>👤</div>
+                    <p>Aucune cliente 🌸</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* CLIENTES */}
-        {activeMenu === 'clientes' && (
-          <div>
-            <div style={{ marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Mes clientes</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>
-                {new Set(rdvs.map(r => r.clientTelephone)).size} clientes
-              </h2>
+          {/* SERVICES */}
+          {activeMenu === 'services' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Services</p>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>Mes prestations</h2>
+              </div>
+              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
+                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>Gérez vos services</h3>
+                <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '20px' }}>Ajoutez, modifiez ou supprimez vos prestations</p>
+                <button className="btn-sakura" onClick={() => navigate('/gestion-services')}>Gérer mes services →</button>
+              </div>
             </div>
-            <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '28px' }}>
-              {[...new Map(rdvs.map(r => [r.clientTelephone, r])).values()].map((rdv, i) => (
-                <div key={i} className="rdv-row">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🌸</div>
-                    <div>
-                      <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
-                      <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.clientTelephone}</p>
-                    </div>
+          )}
+
+          {/* STATS */}
+          {activeMenu === 'stats' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Statistiques</p>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>Mon activité</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                {[
+                  { label: 'Total RDV', valeur: rdvs.length, couleur: '#c4829a' },
+                  { label: 'Confirmés', valeur: rdvs.filter(r => r.statut === 'confirmé').length, couleur: '#6dbf9e' },
+                  { label: 'Annulés', valeur: rdvs.filter(r => r.statut === 'annulé').length, couleur: '#e8a87c' },
+                  { label: 'CA total', valeur: rdvs.filter(r => r.statut === 'confirmé').reduce((acc, r) => acc + (r.prix || 0), 0) + '€', couleur: '#9b8ec4' },
+                ].map((stat, i) => (
+                  <div key={i} className="stat-card">
+                    <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 10px', fontWeight: '300' }}>{stat.label}</p>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '40px', fontWeight: '300', color: stat.couleur, margin: 0 }}>{stat.valeur}</p>
                   </div>
-                  <p style={{ fontSize: '12px', color: '#9c9189', margin: 0 }}>
-                    {rdvs.filter(r => r.clientTelephone === rdv.clientTelephone).length} RDV
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MA PAGE */}
+          {activeMenu === 'page' && (
+            <div>
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Ma page</p>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c' }}>Ma vitrine Glowi</h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
+                  <div style={{ background: '#faf8f5', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px' }}>
+                    <p style={{ fontSize: '12px', color: '#c4b5ac', margin: '0 0 4px' }}>Mon lien Glowi</p>
+                    <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: 0 }}>glowi-eight.vercel.app/pro/{slugNom}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button className="btn-sakura" style={{ flex: 1, fontSize: '13px' }} onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page →</button>
+                    <button className="btn-outline" style={{ flex: 1, fontSize: '13px' }} onClick={() => { navigator.clipboard.writeText(`https://glowi-eight.vercel.app/pro/${slugNom}`); alert('Lien copié ! 🌸') }}>Copier le lien</button>
+                  </div>
+                </div>
+                <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
+                  <p style={{ fontSize: '11px', letterSpacing: '2px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Personnalisation</p>
+                  <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '16px', lineHeight: '1.6' }}>
+                    Photo, description, ville, horaires, Instagram, WhatsApp
                   </p>
-                </div>
-              ))}
-              {rdvs.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
-                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>👤</div>
-                  <p style={{ fontSize: '14px' }}>Aucune cliente pour le moment 🌸</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* SERVICES */}
-        {activeMenu === 'services' && (
-          <div>
-            <div style={{ marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Mes services</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>Gestion des services</h2>
-            </div>
-            <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
-              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>Gérez vos prestations</h3>
-              <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '24px', lineHeight: '1.7' }}>
-                Ajoutez, modifiez ou supprimez vos services.<br />Ils s'affichent en temps réel sur votre page Glowi.
-              </p>
-              <button className="btn-sakura" onClick={() => navigate('/gestion-services')}>Gérer mes services →</button>
-            </div>
-          </div>
-        )}
-
-        {/* STATS */}
-        {activeMenu === 'stats' && (
-          <div>
-            <div style={{ marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Statistiques</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>Mon activité</h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-              {[
-                { label: 'Total RDV', valeur: rdvs.length, couleur: '#c4829a' },
-                { label: 'RDV confirmés', valeur: rdvs.filter(r => r.statut === 'confirmé').length, couleur: '#6dbf9e' },
-                { label: 'RDV annulés', valeur: rdvs.filter(r => r.statut === 'annulé').length, couleur: '#e8a87c' },
-                { label: 'Chiffre d\'affaires', valeur: rdvs.filter(r => r.statut === 'confirmé').reduce((acc, r) => acc + (r.prix || 0), 0) + '€', couleur: '#9b8ec4' },
-              ].map((stat, i) => (
-                <div key={i} className="stat-card">
-                  <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 12px', fontWeight: '300' }}>{stat.label}</p>
-                  <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '48px', fontWeight: '300', color: stat.couleur, margin: 0 }}>{stat.valeur}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* MA PAGE */}
-        {activeMenu === 'page' && (
-          <div>
-            <div style={{ marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Ma page</p>
-              <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>Ma vitrine Glowi</h2>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px' }}>
-                <div style={{ background: '#faf8f5', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '12px', color: '#c4b5ac' }}>glowi-eight.vercel.app/pro/</span>
-                  <span style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c' }}>{slugNom}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page →</button>
-                  <button className="btn-outline" onClick={() => {
-                    navigator.clipboard.writeText(`https://glowi-eight.vercel.app/pro/${slugNom}`)
-                    alert('Lien copié ! 🌸')
-                  }}>Copier le lien</button>
+                  <button className="btn-sakura" style={{ width: '100%' }} onClick={() => navigate('/profil')}>Personnaliser mon profil →</button>
                 </div>
               </div>
-              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px' }}>
-                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Personnalisation</p>
-                <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '20px', lineHeight: '1.7' }}>
-                  Modifiez votre photo de profil, description, localisation, réseaux sociaux et horaires.
-                </p>
-                <button className="btn-sakura" onClick={() => navigate('/profil')}>Personnaliser mon profil →</button>
-              </div>
             </div>
-          </div>
-        )}
+          )}
 
+        </div>
       </div>
     </div>
   )

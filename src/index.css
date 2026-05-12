@@ -5,5 +5,191 @@
 }
 
 body {
-  font-family: sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== RESPONSIVE GLOBAL ===== */
+
+/* Navbar */
+nav {
+  padding: 16px 20px !important;
+}
+
+/* Réduire les paddings sur mobile */
+@media (max-width: 768px) {
+
+  /* HOME */
+  h2[style*="76px"] {
+    font-size: 42px !important;
+  }
+
+  /* Grilles 3 colonnes → 1 colonne */
+  div[style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grilles 2 colonnes → 1 colonne */
+  div[style*="grid-template-columns: repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grilles 4 colonnes → 2 colonnes */
+  div[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Padding 60px → 20px */
+  div[style*="padding: 100px 60px"] {
+    padding: 48px 20px !important;
+  }
+
+  div[style*="padding: 80px 60px"] {
+    padding: 40px 20px !important;
+  }
+
+  div[style*="padding: 60px 40px"] {
+    padding: 32px 20px !important;
+  }
+
+  div[style*="padding: 48px 60px"] {
+    padding: 24px 20px !important;
+  }
+
+  div[style*="padding: 40px 48px"] {
+    padding: 24px 20px !important;
+  }
+
+  /* Flex → colonne sur mobile */
+  div[style*="display: flex"][style*="gap: 24px"],
+  div[style*="display: flex"][style*="gap: 32px"] {
+    flex-direction: column !important;
+  }
+
+  /* Dashboard sidebar cachée sur mobile */
+  div[style*="width: 240px"][style*="position: fixed"] {
+    display: none !important;
+  }
+
+  div[style*="margin-left: 240px"] {
+    margin-left: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Grille dashboard 2 colonnes → 1 colonne */
+  div[style*="grid-template-columns: 1fr 340px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  div[style*="grid-template-columns: 1fr 400px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ProPage sticky → normal */
+  div[style*="position: sticky"] {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  /* Navbar padding */
+  nav[style*="padding: 20px 60px"],
+  nav[style*="padding: 24px 60px"] {
+    padding: 16px 20px !important;
+  }
+
+  /* Footer padding */
+  div[style*="padding: 32px 60px"] {
+    padding: 24px 20px !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    text-align: center !important;
+  }
+
+  /* Panneau gauche login/register caché sur mobile */
+  div[style*="width: 45%"],
+  div[style*="width: 42%"] {
+    display: none !important;
+  }
+
+  /* Texte hero plus petit */
+  h2[style*="font-size: 76px"] {
+    font-size: 38px !important;
+    line-height: 1.2 !important;
+  }
+
+  h2[style*="font-size: 52px"] {
+    font-size: 32px !important;
+  }
+
+  h3[style*="font-size: 46px"] {
+    font-size: 28px !important;
+  }
+
+  h3[style*="font-size: 56px"] {
+    font-size: 32px !important;
+  }
+
+  /* Boutons navbar */
+  nav div[style*="display: flex"][style*="gap: 14px"],
+  nav div[style*="display: flex"][style*="gap: 10px"] {
+    gap: 8px !important;
+  }
+
+  /* Stats cards */
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Carte villes */
+  div[style*="max-width: 600px"] {
+    max-width: 100% !important;
+  }
+
+  /* Progression */
+  div[style*="max-width: 700px"] {
+    max-width: 100% !important;
+  }
+
+  /* Plan cards */
+  div[style*="min-width: 240px"] {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+
+  /* Abonnement grille */
+  div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Espace cliente stats */
+  div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Max width containers */
+  div[style*="max-width: 900px"],
+  div[style*="max-width: 800px"],
+  div[style*="max-width: 700px"],
+  div[style*="max-width: 500px"] {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* GestionServices grid */
+  div[style*="grid-template-columns: 1fr 120px 100px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Horaires */
+  div[style*="display: flex"][style*="gap: 8px"][style*="flex-wrap: wrap"] {
+    gap: 6px !important;
+  }
+
+}
+
+/* Curseur normal sur mobile */
+@media (max-width: 768px) {
+  * {
+    cursor: auto !important;
+  }
 }
