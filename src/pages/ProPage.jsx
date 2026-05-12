@@ -85,15 +85,13 @@ function ProPage() {
   const [confirme, setConfirme] = useState(false)
   const [loadingRdv, setLoadingRdv] = useState(false)
 
-  const services = [
-    { id: 1, nom: 'Pose gel complète', duree: '1h30', prix: 45 },
-    { id: 2, nom: 'Remplissage', duree: '1h', prix: 35 },
-    { id: 3, nom: 'Nail art', duree: '30min', prix: 15 },
-    { id: 4, nom: 'Dépose', duree: '30min', prix: 20 },
-    { id: 5, nom: 'Beauté des pieds', duree: '45min', prix: 30 },
-  ]
-
   const tousCreneaux = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
+  const aujourdhui = new Date().toISOString().split('T')[0]
+
+  const joursLabels = {
+    lundi: 'Lun', mardi: 'Mar', mercredi: 'Mer',
+    jeudi: 'Jeu', vendredi: 'Ven', samedi: 'Sam', dimanche: 'Dim'
+  }
 
   useEffect(() => {
     const chargerPro = async () => {
@@ -115,7 +113,6 @@ function ProPage() {
     chargerPro()
   }, [id])
 
-  // Charger les créneaux pris quand la date change
   useEffect(() => {
     if (!dateChoisie || !pro) return
     const chargerCreneauxPris = async () => {
@@ -127,8 +124,7 @@ function ProPage() {
           where('statut', '==', 'confirmé')
         )
         const snapshot = await getDocs(q)
-        const heuresPrises = snapshot.docs.map(d => d.data().heure)
-        setCreneauxPris(heuresPrises)
+        setCreneauxPris(snapshot.docs.map(d => d.data().heure))
       } catch (e) {
         console.error(e)
       }
@@ -164,7 +160,13 @@ function ProPage() {
     ? (avis.reduce((acc, a) => acc + a.note, 0) / avis.length).toFixed(1)
     : null
 
-  const aujourdhui = new Date().toISOString().split('T')[0]
+  const services = pro?.services || [
+    { nom: 'Pose gel complète', duree: '1h30', prix: 45 },
+    { nom: 'Remplissage', duree: '1h', prix: 35 },
+    { nom: 'Nail art', duree: '30min', prix: 15 },
+    { nom: 'Dépose', duree: '30min', prix: 20 },
+    { nom: 'Beauté des pieds', duree: '45min', prix: 30 },
+  ]
 
   if (loading) {
     return (
@@ -182,8 +184,6 @@ function ProPage() {
     )
   }
 
-  const iconeMetier = { onglerie: '💅', lash: '👁️', headspa: '💆', massage: '🪷', 'soin-visage': '🌿' }
-
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5', cursor: 'none' }}>
 
@@ -192,8 +192,7 @@ function ProPage() {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         @keyframes fall {
           0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 0.7; }
+          10%  { opacity: 1; } 90%  { opacity: 0.7; }
           100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
         @keyframes fadeUp {
@@ -211,10 +210,7 @@ function ProPage() {
           display: flex; justify-content: space-between; align-items: center;
         }
         .service-card:hover { border-color: #c4829a; transform: translateX(4px); }
-        .service-card.active {
-          border: 2px solid #c4829a; background: #fdf6f8;
-          box-shadow: 0 4px 20px rgba(196,130,154,0.12);
-        }
+        .service-card.active { border: 2px solid #c4829a; background: #fdf6f8; box-shadow: 0 4px 20px rgba(196,130,154,0.12); }
         .creneau {
           padding: 10px 16px; border-radius: 10px;
           border: 1px solid #ede8e3; background: #fff;
@@ -222,34 +218,21 @@ function ProPage() {
           color: #2c2c2c; font-family: 'Inter', sans-serif;
         }
         .creneau:hover { border-color: #c4829a; }
-        .creneau.active {
-          background: #c4829a; color: #fff; border-color: #c4829a;
-          box-shadow: 0 4px 12px rgba(196,130,154,0.3);
-        }
-        .creneau.pris {
-          background: #f5f0ed; color: #c4b5ac;
-          border-color: #ede8e3; text-decoration: line-through;
-          cursor: not-allowed; opacity: 0.6;
-        }
+        .creneau.active { background: #c4829a; color: #fff; border-color: #c4829a; box-shadow: 0 4px 12px rgba(196,130,154,0.3); }
+        .creneau.pris { background: #f5f0ed; color: #c4b5ac; border-color: #ede8e3; text-decoration: line-through; cursor: not-allowed; opacity: 0.6; }
         .input-zen {
           width: 100%; padding: 12px 16px;
           border: 1px solid #ede8e3; border-radius: 12px;
           font-size: 14px; font-family: 'Inter', sans-serif;
-          background: #faf8f5; color: #2c2c2c;
-          outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+          background: #faf8f5; color: #2c2c2c; outline: none;
+          transition: border-color 0.3s, box-shadow 0.3s;
           box-sizing: border-box; cursor: none;
         }
-        .input-zen:focus {
-          border-color: #c4829a;
-          box-shadow: 0 0 0 3px rgba(196,130,154,0.1);
-          background: #fff;
-        }
+        .input-zen:focus { border-color: #c4829a; box-shadow: 0 0 0 3px rgba(196,130,154,0.1); background: #fff; }
         .btn-sakura {
-          width: 100%; padding: 14px; background: #c4829a;
-          color: #fff; border: none; border-radius: 40px;
-          font-size: 14px; letter-spacing: 1px; cursor: none;
-          font-family: 'Inter', sans-serif;
-          position: relative; overflow: hidden;
+          width: 100%; padding: 14px; background: #c4829a; color: #fff;
+          border: none; border-radius: 40px; font-size: 14px; letter-spacing: 1px; cursor: none;
+          font-family: 'Inter', sans-serif; position: relative; overflow: hidden;
           transition: transform 0.2s, background 0.3s;
         }
         .btn-sakura:hover { transform: translateY(-2px); background: #b57089; }
@@ -261,18 +244,18 @@ function ProPage() {
         }
         .btn-sakura:hover::after { left: 150%; }
         .btn-outline {
-          width: 100%; padding: 12px; background: transparent;
-          color: #c4829a; border: 1px solid #c4829a;
-          border-radius: 40px; font-size: 14px; cursor: none;
-          font-family: 'Inter', sans-serif; transition: all 0.3s;
-          margin-top: 10px;
+          width: 100%; padding: 12px; background: transparent; color: #c4829a;
+          border: 1px solid #c4829a; border-radius: 40px; font-size: 14px; cursor: none;
+          font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); }
-        .avis-card {
-          background: #fff; border: 1px solid #ede8e3;
-          border-radius: 14px; padding: 18px 20px;
-          margin-bottom: 12px;
+        .avis-card { background: #fff; border: 1px solid #ede8e3; border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; }
+        .horaire-badge {
+          padding: 4px 10px; border-radius: 20px; font-size: 11px;
+          border: 1px solid #ede8e3; color: #9c9189;
         }
+        .horaire-badge.ouvert { background: #e8f5ee; color: #1a7a45; border-color: #b7e0c8; }
+        .horaire-badge.ferme { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
       `}</style>
 
       <CustomCursor />
@@ -297,24 +280,68 @@ function ProPage() {
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '48px 24px' }}>
 
         {/* PROFIL PRO */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '48px', animation: 'fadeUp 0.6s ease forwards' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', marginBottom: '48px', animation: 'fadeUp 0.6s ease forwards' }}>
           <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', border: '3px solid #fff', boxShadow: '0 4px 20px rgba(196,130,154,0.15)', flexShrink: 0 }}>
-            {iconeMetier[pro.metier] || '✨'}
+            {pro.emoji || '✨'}
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c', marginBottom: '6px' }}>{pro.nom}</h2>
-            <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '10px' }}>{pro.metier} · Glowi</p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {pro.description && <p style={{ fontSize: '14px', color: '#9c9189', fontWeight: '300', marginBottom: '10px', lineHeight: '1.6' }}>{pro.description}</p>}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
               <span style={{ background: '#fdf6f8', color: '#c4829a', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>{pro.metier}</span>
               <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>✓ Disponible</span>
-              {noteMoyenne && (
-                <span style={{ background: '#faf8f5', color: '#9c9189', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ede8e3' }}>
-                  ⭐ {noteMoyenne} · {avis.length} avis
-                </span>
+              {noteMoyenne && <span style={{ background: '#faf8f5', color: '#9c9189', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ede8e3' }}>⭐ {noteMoyenne} · {avis.length} avis</span>}
+              {pro.ville && <span style={{ background: '#faf8f5', color: '#9c9189', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ede8e3' }}>📍 {pro.ville}</span>}
+            </div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {pro.instagram && (
+                <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#c4829a', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  📸 @{pro.instagram}
+                </a>
+              )}
+              {pro.whatsapp && (
+                <a href={`https://wa.me/${pro.whatsapp.replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#25d366', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  💬 WhatsApp
+                </a>
               )}
             </div>
           </div>
         </div>
+
+        {/* HORAIRES */}
+        {pro.horaires && (
+          <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '20px 24px', marginBottom: '32px', animation: 'fadeUp 0.5s ease 0.1s both' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '14px' }}>Horaires</p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {Object.entries(joursLabels).map(([jour, label]) => (
+                <div key={jour} style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '11px', color: '#c4b5ac', marginBottom: '4px' }}>{label}</p>
+                  <span className={`horaire-badge ${pro.horaires[jour]?.ouvert ? 'ouvert' : 'ferme'}`}>
+                    {pro.horaires[jour]?.ouvert ? `${pro.horaires[jour].debut}-${pro.horaires[jour].fin}` : 'Fermé'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CARTE */}
+        {pro.coordonnees && (
+          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid #ede8e3', marginBottom: '32px', animation: 'fadeUp 0.5s ease 0.15s both' }}>
+            <iframe
+              title="carte"
+              width="100%"
+              height="200"
+              frameBorder="0"
+              scrolling="no"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${pro.coordonnees.lon - 0.01},${pro.coordonnees.lat - 0.01},${pro.coordonnees.lon + 0.01},${pro.coordonnees.lat + 0.01}&layer=mapnik&marker=${pro.coordonnees.lat},${pro.coordonnees.lon}`}
+              style={{ display: 'block' }}
+            />
+            <div style={{ padding: '10px 16px', background: '#faf8f5', borderTop: '1px solid #ede8e3' }}>
+              <p style={{ fontSize: '12px', color: '#9c9189', margin: 0 }}>📍 {pro.ville || pro.adresse}</p>
+            </div>
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
 
@@ -324,15 +351,13 @@ function ProPage() {
             <div style={{ marginBottom: '40px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
               <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '20px' }}>Prestations</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {services.map((s) => (
-                  <div key={s.id} className={`service-card ${serviceChoisi?.id === s.id ? 'active' : ''}`} onClick={() => setServiceChoisi(s)}>
+                {services.map((s, i) => (
+                  <div key={i} className={`service-card ${serviceChoisi?.nom === s.nom ? 'active' : ''}`} onClick={() => setServiceChoisi(s)}>
                     <div>
                       <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 3px' }}>{s.nom}</p>
                       <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{s.duree}</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '300', color: serviceChoisi?.id === s.id ? '#c4829a' : '#2c2c2c', margin: 0 }}>{s.prix}€</p>
-                    </div>
+                    <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '300', color: serviceChoisi?.nom === s.nom ? '#c4829a' : '#2c2c2c', margin: 0 }}>{s.prix}€</p>
                   </div>
                 ))}
               </div>
@@ -342,7 +367,7 @@ function ProPage() {
             <div style={{ animation: 'fadeUp 0.6s ease 0.2s both' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase' }}>
-                  Avis clients {avis.length > 0 && `· ${noteMoyenne} ⭐`}
+                  Avis {avis.length > 0 && `· ${noteMoyenne} ⭐`}
                 </p>
                 <button onClick={() => navigate(`/avis/${pro.id}`)} style={{ fontSize: '12px', color: '#c4829a', background: 'transparent', border: '1px solid #c4829a', borderRadius: '20px', padding: '5px 14px', cursor: 'none' }}>
                   + Laisser un avis
@@ -361,14 +386,10 @@ function ProPage() {
                         <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: 0 }}>{a.prenom}</p>
                       </div>
                       <div style={{ display: 'flex', gap: '2px' }}>
-                        {[1,2,3,4,5].map(n => (
-                          <span key={n} style={{ fontSize: '14px' }}>{n <= a.note ? '⭐' : '☆'}</span>
-                        ))}
+                        {[1,2,3,4,5].map(n => <span key={n} style={{ fontSize: '14px' }}>{n <= a.note ? '⭐' : '☆'}</span>)}
                       </div>
                     </div>
-                    {a.commentaire && (
-                      <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7', margin: 0 }}>{a.commentaire}</p>
-                    )}
+                    {a.commentaire && <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7', margin: 0 }}>{a.commentaire}</p>}
                   </div>
                 ))
               )}
@@ -385,50 +406,27 @@ function ProPage() {
                   <div>
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>DATE</label>
-                      <input
-                        type="date"
-                        value={dateChoisie}
-                        min={aujourdhui}
-                        onChange={(e) => {
-                          setDateChoisie(e.target.value)
-                          setHeureChoisie('')
-                        }}
-                        className="input-zen"
-                      />
+                      <input type="date" value={dateChoisie} min={aujourdhui} onChange={(e) => { setDateChoisie(e.target.value); setHeureChoisie('') }} className="input-zen" />
                     </div>
-
                     <div style={{ marginBottom: '28px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>
                         HEURE
                         {dateChoisie && creneauxPris.length > 0 && (
-                          <span style={{ fontSize: '11px', color: '#c4b5ac', marginLeft: '8px', fontWeight: '300' }}>
-                            — {creneauxPris.length} créneau(x) indisponible(s)
-                          </span>
+                          <span style={{ fontSize: '11px', color: '#c4b5ac', marginLeft: '8px', fontWeight: '300' }}>— {creneauxPris.length} indisponible(s)</span>
                         )}
                       </label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {tousCreneaux.map((c) => {
                           const estPris = creneauxPris.includes(c)
-                          const estActif = heureChoisie === c
                           return (
-                            <div
-                              key={c}
-                              className={`creneau ${estActif ? 'active' : ''} ${estPris ? 'pris' : ''}`}
-                              onClick={() => !estPris && setHeureChoisie(c)}
-                              title={estPris ? 'Créneau déjà réservé' : ''}
-                            >
+                            <div key={c} className={`creneau ${heureChoisie === c ? 'active' : ''} ${estPris ? 'pris' : ''}`} onClick={() => !estPris && setHeureChoisie(c)} title={estPris ? 'Créneau déjà réservé' : ''}>
                               {c} {estPris ? '🚫' : ''}
                             </div>
                           )
                         })}
                       </div>
-                      {!dateChoisie && (
-                        <p style={{ fontSize: '11px', color: '#c4b5ac', marginTop: '8px' }}>
-                          Choisissez d'abord une date pour voir les disponibilités
-                        </p>
-                      )}
+                      {!dateChoisie && <p style={{ fontSize: '11px', color: '#c4b5ac', marginTop: '8px' }}>Choisissez d'abord une date</p>}
                     </div>
-
                     {serviceChoisi && (
                       <div style={{ background: '#fdf6f8', border: '1px solid #e8d5db', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
                         <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 4px', fontWeight: '300' }}>Prestation sélectionnée</p>
@@ -436,12 +434,7 @@ function ProPage() {
                         <p style={{ fontSize: '13px', color: '#c4829a', margin: 0 }}>{serviceChoisi.prix}€ · {serviceChoisi.duree}</p>
                       </div>
                     )}
-
-                    <button
-                      className="btn-sakura"
-                      onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)}
-                      style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}
-                    >
+                    <button className="btn-sakura" onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)} style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}>
                       Continuer →
                     </button>
                   </div>
@@ -477,22 +470,14 @@ function ProPage() {
               <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '20px', padding: '40px 32px', textAlign: 'center', animation: 'scaleIn 0.5s ease forwards' }}>
                 <div style={{ fontSize: '56px', marginBottom: '20px' }}>🌸</div>
                 <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>C'est confirmé !</p>
-                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>
-                  À bientôt {nom} !
-                </h3>
+                <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>À bientôt {nom} !</h3>
                 <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7', marginBottom: '8px' }}>
                   {serviceChoisi?.nom}<br />
                   <strong style={{ color: '#c4829a' }}>{dateChoisie} à {heureChoisie}</strong>
                 </p>
-                <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '16px', marginBottom: '24px' }}>
-                  Un rappel SMS te sera envoyé 24h avant 🌸
-                </p>
-                <button className="btn-sakura" onClick={() => navigate('/espace-cliente')}>
-                  Voir mes RDV →
-                </button>
-                <button className="btn-outline" onClick={() => navigate('/')}>
-                  Retour à l'accueil
-                </button>
+                <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '16px', marginBottom: '24px' }}>Un rappel SMS te sera envoyé 24h avant 🌸</p>
+                <button className="btn-sakura" onClick={() => navigate('/espace-cliente')}>Voir mes RDV →</button>
+                <button className="btn-outline" onClick={() => navigate('/')}>Retour à l'accueil</button>
               </div>
             )}
           </div>
