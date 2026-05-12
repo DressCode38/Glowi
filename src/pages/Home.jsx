@@ -196,7 +196,7 @@ function Progression() {
           </div>
         ))}
       </div>
-      <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px', textAlign: 'left' }}>
+      <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px', textAlign: 'left', transition: 'all 0.4s' }}>
         <p style={{ fontSize: '11px', color: '#c4829a', letterSpacing: '3px', marginBottom: '12px' }}>ÉTAPE {etapes[active].num}</p>
         <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '400', marginBottom: '10px', color: '#2c2c2c' }}>{etapes[active].titre}</h4>
         <p style={{ fontSize: '14px', color: '#9c9189', fontWeight: '300', lineHeight: '1.7' }}>{etapes[active].desc}</p>
@@ -250,14 +250,13 @@ export default function Home() {
           osc2.start(startTime)
           osc2.stop(startTime + duration)
         }
-        const t = ctx.currentTime + 0.3
+        const t = ctx.currentTime + 0.1
         playChime(1046, t, 2.5)
         playChime(1318, t + 0.55, 2.2)
         playChime(1568, t + 1.1, 2.8)
         playChime(2093, t + 1.65, 2.0, 0.07)
       } catch (e) {}
     }
-
     window.addEventListener('click', jouerCarillon, { once: true })
     return () => window.removeEventListener('click', jouerCarillon)
   }, [])
@@ -282,6 +281,7 @@ export default function Home() {
           position: relative; overflow: hidden;
           transition: transform 0.2s, background 0.3s;
         }
+        .btn-sakura:hover { transform: translateY(-2px); background: #b57089; }
         .btn-sakura::after {
           content: ''; position: absolute; top: 0; left: -100%;
           width: 60%; height: 100%;
@@ -289,21 +289,13 @@ export default function Home() {
           transform: skewX(-20deg); transition: left 0.5s;
         }
         .btn-sakura:hover::after { left: 150%; }
-        .btn-sakura:hover { transform: translateY(-2px); background: #b57089; }
         .btn-outline {
-          padding: 13px 32px; background: transparent; color: #c4829a;
+          padding: 13px 20px; background: transparent; color: #c4829a;
           border: 1px solid #c4829a; border-radius: 40px; font-size: 13px;
-          letter-spacing: 1.5px; cursor: none;
+          letter-spacing: 1px; cursor: none;
           font-family: 'Inter', sans-serif; transition: all 0.3s;
           position: relative; overflow: hidden;
         }
-        .btn-outline::after {
-          content: ''; position: absolute; top: 0; left: -100%;
-          width: 60%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(196,130,154,0.2), transparent);
-          transform: skewX(-20deg); transition: left 0.5s;
-        }
-        .btn-outline:hover::after { left: 150%; }
         .btn-outline:hover { background: rgba(196,130,154,0.08); transform: translateY(-2px); }
         .card-zen {
           background: #fff; border: 1px solid #ede8e3;
@@ -325,8 +317,10 @@ export default function Home() {
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '400', letterSpacing: '2px' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h1>
-        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-          <button className="btn-outline" onClick={() => navigate('/login')}>Connexion</button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
+          <button className="btn-outline" onClick={() => navigate('/espace-cliente')}>Mon espace</button>
+          <button className="btn-outline" onClick={() => navigate('/login')}>Connexion pro</button>
           <button className="btn-sakura" onClick={() => navigate('/register')}>Rejoindre Glowi</button>
         </div>
       </nav>
@@ -347,7 +341,7 @@ export default function Home() {
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn-sakura" onClick={() => navigate('/register')}>Créer ma page Glowi</button>
-            <button className="btn-outline" onClick={() => navigate('/login')}>Voir une démo</button>
+            <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
           </div>
           <p style={{ fontSize: '12px', color: '#c4b5ac', marginTop: '24px', letterSpacing: '1px' }}>14 jours offerts · Sans engagement · Sans carte bancaire</p>
         </AnimatedSection>
@@ -503,7 +497,10 @@ export default function Home() {
             Votre talent mérite<br /><em style={{ color: '#c4829a' }}>mieux que des DMs</em>
           </h3>
           <p style={{ fontSize: '14px', color: '#9c9189', marginBottom: '40px', fontWeight: '300' }}>Rejoignez les professionnelles qui ont déjà fait le choix de Glowi</p>
-          <button className="btn-sakura" onClick={() => navigate('/register')}>Créer ma page gratuitement</button>
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button className="btn-sakura" onClick={() => navigate('/register')}>Créer ma page gratuitement</button>
+            <button className="btn-outline" onClick={() => navigate('/recherche')}>Trouver une pro</button>
+          </div>
         </AnimatedSection>
       </div>
 
@@ -512,6 +509,11 @@ export default function Home() {
         <h4 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400' }}>
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h4>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <span onClick={() => navigate('/recherche')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Trouver une pro</span>
+          <span onClick={() => navigate('/espace-cliente')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Espace cliente</span>
+          <span onClick={() => navigate('/register')} style={{ fontSize: '13px', color: '#9c9189', cursor: 'none' }}>Devenir pro</span>
+        </div>
         <p style={{ fontSize: '12px', color: '#c4b5ac', letterSpacing: '1px' }}>© 2025 Glowi — Tous droits réservés</p>
       </div>
 
