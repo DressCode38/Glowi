@@ -160,17 +160,6 @@ function Dashboard() {
           display: flex; align-items: center; gap: 16px;
           animation: slideDown 0.6s ease forwards;
         }
-        .feature-card {
-          background: #fff; border: 1px solid #ede8e3;
-          border-radius: 16px; padding: 24px;
-          transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-          cursor: none;
-        }
-        .feature-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 32px rgba(196,130,154,0.12);
-          border-color: #c4829a;
-        }
       `}</style>
 
       <CustomCursor />
@@ -185,7 +174,6 @@ function Dashboard() {
           Glo<span style={{ color: '#c4829a' }}>wi</span>
         </h1>
         <p style={{ fontSize: '11px', color: '#c4b5ac', letterSpacing: '1px', paddingLeft: '16px', marginBottom: '40px' }}>Espace pro</p>
-
         <nav style={{ flex: 1 }}>
           {menu.map((m) => (
             <div key={m.id} className={`menu-item ${activeMenu === m.id ? 'active' : ''}`} onClick={() => setActiveMenu(m.id)}>
@@ -194,7 +182,6 @@ function Dashboard() {
             </div>
           ))}
         </nav>
-
         <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '20px', paddingLeft: '16px' }}>
           <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', marginBottom: '2px' }}>{pro?.nom}</p>
           <p style={{ fontSize: '11px', color: '#c4b5ac', marginBottom: '12px' }}>Plan {planLabel} · {pro?.essaiActif ? '14j restants' : 'Actif'}</p>
@@ -204,10 +191,9 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* CONTENU PRINCIPAL */}
+      {/* CONTENU */}
       <div style={{ marginLeft: '240px', flex: 1, padding: '40px 48px' }}>
 
-        {/* BANNIÈRE SUCCÈS */}
         {paiementReussi && (
           <div className="success-banner">
             <span style={{ fontSize: '32px' }}>🎉</span>
@@ -224,9 +210,7 @@ function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
               <div>
                 <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '6px' }}>Bonjour 🌸</p>
-                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>
-                  {pro?.nom}
-                </h2>
+                <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>{pro?.nom}</h2>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button className="btn-outline" onClick={() => navigate('/abonnement')}>Gérer mon abonnement</button>
@@ -234,7 +218,6 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* STATS */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
               {[
                 { label: 'RDV ce mois', valeur: rdvs.filter(r => r.date?.startsWith(new Date().toISOString().slice(0,7))).length, evolution: 'Ce mois', couleur: '#c4829a' },
@@ -250,15 +233,10 @@ function Dashboard() {
               ))}
             </div>
 
-            {/* 2 COLONNES */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
-
-              {/* PROCHAINS RDV */}
               <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '28px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400', color: '#2c2c2c' }}>
-                    Prochains rendez-vous
-                  </h3>
+                  <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400', color: '#2c2c2c' }}>Prochains rendez-vous</h3>
                   <span style={{ fontSize: '12px', color: '#c4829a' }}>{rdvsAVenir.length} RDV</span>
                 </div>
                 {rdvsAVenir.length === 0 ? (
@@ -268,7 +246,7 @@ function Dashboard() {
                     <p style={{ fontSize: '12px' }}>Partage ta page Glowi 🌸</p>
                   </div>
                 ) : (
-                  rdvsAVenir.slice(0, 5).map((rdv, i) => (
+                  rdvsAVenir.slice(0, 5).map((rdv) => (
                     <div key={rdv.id} className="rdv-row">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🌸</div>
@@ -289,37 +267,24 @@ function Dashboard() {
                 )}
               </div>
 
-              {/* PANNEAU DROIT */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-                {/* ABONNEMENT */}
                 <div style={{ background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', border: '1px solid #e8d5db', borderRadius: '16px', padding: '24px' }}>
                   <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Mon abonnement</p>
                   <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', fontWeight: '300', color: '#2c2c2c', marginBottom: '4px' }}>Plan {planLabel}</p>
                   <p style={{ fontSize: '12px', color: '#9c9189', marginBottom: '20px', fontWeight: '300' }}>{planPrix}/mois · {pro?.essaiActif ? '14 jours restants' : 'Actif'}</p>
-                  <button className="btn-sakura" style={{ width: '100%', fontSize: '13px' }} onClick={() => navigate('/abonnement')}>
-                    Gérer mon abonnement
-                  </button>
+                  <button className="btn-sakura" style={{ width: '100%', fontSize: '13px' }} onClick={() => navigate('/abonnement')}>Gérer mon abonnement</button>
                 </div>
-
-                {/* MA PAGE */}
                 <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
                   <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Ma page Glowi</p>
                   <div style={{ background: '#faf8f5', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ fontSize: '12px', color: '#c4b5ac' }}>glowi.fr/</span>
                     <span style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c' }}>{slugNom}</span>
                   </div>
-                  <button className="btn-outline" style={{ width: '100%', fontSize: '12px' }} onClick={() => navigate(`/pro/${slugNom}`)}>
-                    Voir ma page →
-                  </button>
+                  <button className="btn-outline" style={{ width: '100%', fontSize: '12px' }} onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page →</button>
                 </div>
-
-                {/* CONSEIL */}
                 <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '24px' }}>
                   <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '12px' }}>Conseil du jour</p>
-                  <p style={{ fontSize: '13px', color: '#9c9189', lineHeight: '1.7', fontWeight: '300' }}>
-                    Partage ton lien Glowi dans ta bio Instagram pour recevoir plus de réservations 🌸
-                  </p>
+                  <p style={{ fontSize: '13px', color: '#9c9189', lineHeight: '1.7', fontWeight: '300' }}>Partage ton lien Glowi dans ta bio Instagram 🌸</p>
                 </div>
               </div>
             </div>
@@ -355,9 +320,7 @@ function Dashboard() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ fontSize: '14px', fontWeight: '500', color: '#c4829a', margin: '0 0 4px' }}>{rdv.prix}€</p>
-                      <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : rdv.statut === 'annulé' ? 'badge-annule' : 'badge-attente'}>
-                        {rdv.statut}
-                      </span>
+                      <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : rdv.statut === 'annulé' ? 'badge-annule' : 'badge-attente'}>{rdv.statut}</span>
                     </div>
                   </div>
                 ))
@@ -385,11 +348,9 @@ function Dashboard() {
                       <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.clientTelephone}</p>
                     </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#9c9189', margin: 0 }}>
-                      {rdvs.filter(r => r.clientTelephone === rdv.clientTelephone).length} RDV
-                    </p>
-                  </div>
+                  <p style={{ fontSize: '12px', color: '#9c9189', margin: 0 }}>
+                    {rdvs.filter(r => r.clientTelephone === rdv.clientTelephone).length} RDV
+                  </p>
                 </div>
               ))}
               {rdvs.length === 0 && (
@@ -411,15 +372,11 @@ function Dashboard() {
             </div>
             <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px', textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>✨</div>
-              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>
-                Gérez vos prestations
-              </h3>
+              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', fontWeight: '300', color: '#2c2c2c', marginBottom: '8px' }}>Gérez vos prestations</h3>
               <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '24px', lineHeight: '1.7' }}>
                 Ajoutez, modifiez ou supprimez vos services.<br />Ils s'affichent en temps réel sur votre page Glowi.
               </p>
-              <button className="btn-sakura" onClick={() => navigate('/gestion-services')}>
-                Gérer mes services →
-              </button>
+              <button className="btn-sakura" onClick={() => navigate('/gestion-services')}>Gérer mes services →</button>
             </div>
           </div>
         )}
@@ -454,21 +411,26 @@ function Dashboard() {
               <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '8px' }}>Ma page</p>
               <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '36px', fontWeight: '300', color: '#2c2c2c' }}>Ma vitrine Glowi</h2>
             </div>
-            <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px' }}>
-              <div style={{ background: '#faf8f5', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '12px', color: '#c4b5ac' }}>glowi-eight.vercel.app/pro/</span>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c' }}>{slugNom}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px' }}>
+                <div style={{ background: '#faf8f5', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#c4b5ac' }}>glowi-eight.vercel.app/pro/</span>
+                  <span style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c' }}>{slugNom}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page →</button>
+                  <button className="btn-outline" onClick={() => {
+                    navigator.clipboard.writeText(`https://glowi-eight.vercel.app/pro/${slugNom}`)
+                    alert('Lien copié ! 🌸')
+                  }}>Copier le lien</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>
-                  Voir ma page →
-                </button>
-                <button className="btn-outline" onClick={() => {
-                  navigator.clipboard.writeText(`https://glowi-eight.vercel.app/pro/${slugNom}`)
-                  alert('Lien copié ! 🌸')
-                }}>
-                  Copier le lien
-                </button>
+              <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '16px', padding: '32px' }}>
+                <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '16px' }}>Personnalisation</p>
+                <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '20px', lineHeight: '1.7' }}>
+                  Modifiez votre photo de profil, description, localisation, réseaux sociaux et horaires.
+                </p>
+                <button className="btn-sakura" onClick={() => navigate('/profil')}>Personnaliser mon profil →</button>
               </div>
             </div>
           </div>

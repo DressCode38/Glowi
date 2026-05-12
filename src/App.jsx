@@ -10,6 +10,7 @@ import Recherche from './pages/Recherche'
 import EspaceCliente from './pages/EspaceCliente'
 import Avis from './pages/Avis'
 import GestionServices from './pages/GestionServices'
+import Profil from './pages/Profil'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/espace-cliente" element={<EspaceCliente />} />
         <Route path="/avis/:proId" element={<Avis />} />
         <Route path="/gestion-services" element={<GestionServices />} />
+        <Route path="/profil" element={<Profil />} />
       </Routes>
     </BrowserRouter>
   )
