@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { collection, getDocs, addDoc } from 'firebase/firestore'
+import { db } from '../firebase'
 
 function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
@@ -68,14 +70,17 @@ function Petales() {
 
 function ProPage() {
   const { id } = useParams()
+  const [pro, setPro] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [serviceChoisi, setServiceChoisi] = useState(null)
   const [dateChoisie, setDateChoisie] = useState('')
   const [heureChoisie, setHeureChoisie] = useState('')
   const [nom, setNom] = useState('')
   const [telephone, setTelephone] = useState('')
+  const [emailCliente, setEmailCliente] = useState('')
   const [etape, setEtape] = useState(1)
   const [confirme, setConfirme] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loadingRdv, setLoadingRdv] = useState(false)
 
   const services = [
     { id: 1, nom: 'Pose gel complète', duree: '1h30', prix: 45 },
@@ -87,20 +92,63 @@ function ProPage() {
 
   const creneaux = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
 
-  const avis = [
-    { prenom: 'Sophie', note: 5, texte: 'Travail impeccable, je recommande à 100% !', date: 'Il y a 2 jours' },
-    { prenom: 'Laura', note: 5, texte: 'Accueil chaleureux et résultat magnifique.', date: 'Il y a 1 semaine' },
-    { prenom: 'Camille', note: 5, texte: 'Toujours au top ! Ma nail artist préférée 🌸', date: 'Il y a 2 semaines' },
-  ]
-
-  const handleReservation = (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setTimeout(() => {
+  useEffect(() => {
+    const chargerPro = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'pros'))
+        const toutes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        const slugNom = (nom) => nom?.toLowerCase().replace(/\s+/g, '-') || ''
+        const proTrouvee = toutes.find(p => slugNom(p.nom) === id)
+        if (proTrouvee) setPro(proTrouvee)
+      } catch (e) {
+        console.error(e)
+      }
       setLoading(false)
+    }
+    chargerPro()
+  }, [id])
+
+  const handleReservation = async (e) => {
+    e.preventDefault()
+    setLoadingRdv(true)
+    try {
+      await addDoc(collection(db, 'rdvs'), {
+        proId: pro.id,
+        proNom: pro.nom,
+        clientNom: nom,
+        clientTelephone: telephone,
+        clientEmail: emailCliente,
+        service: serviceChoisi.nom,
+        prix: serviceChoisi.prix,
+        date: dateChoisie,
+        heure: heureChoisie,
+        statut: 'confirmé',
+        dateCreation: new Date(),
+      })
       setConfirme(true)
-    }, 1500)
+    } catch (e) {
+      console.error(e)
+    }
+    setLoadingRdv(false)
   }
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#c4829a' }}>Chargement... 🌸</p>
+      </div>
+    )
+  }
+
+  if (!pro) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '24px', color: '#c4829a' }}>Pro introuvable 🌸</p>
+      </div>
+    )
+  }
+
+  const iconeMetier = { onglerie: '💅', lash: '👁️', headspa: '💆', massage: '🪷', 'soin-visage': '🌿' }
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5', cursor: 'none' }}>
@@ -141,8 +189,7 @@ function ProPage() {
         }
         .creneau:hover { border-color: #c4829a; }
         .creneau.active {
-          background: #c4829a; color: #fff;
-          border-color: #c4829a;
+          background: #c4829a; color: #fff; border-color: #c4829a;
           box-shadow: 0 4px 12px rgba(196,130,154,0.3);
         }
         .input-zen {
@@ -182,7 +229,6 @@ function ProPage() {
           margin-top: 10px;
         }
         .btn-outline:hover { background: rgba(196,130,154,0.08); }
-        .etoile { color: #c4829a; font-size: 13px; }
       `}</style>
 
       <CustomCursor />
@@ -204,24 +250,22 @@ function ProPage() {
         {/* PROFIL PRO */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '48px', animation: 'fadeUp 0.6s ease forwards' }}>
           <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', border: '3px solid #fff', boxShadow: '0 4px 20px rgba(196,130,154,0.15)', flexShrink: 0 }}>
-            💅
+            {iconeMetier[pro.metier] || '✨'}
           </div>
           <div>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c', marginBottom: '6px' }}>Maya Nails</h2>
-            <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '10px' }}>Onglerie professionnelle · Paris 11e</p>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', fontWeight: '300', color: '#2c2c2c', marginBottom: '6px' }}>{pro.nom}</h2>
+            <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', marginBottom: '10px' }}>{pro.metier} · Glowi</p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ background: '#fdf6f8', color: '#c4829a', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>Onglerie</span>
+              <span style={{ background: '#fdf6f8', color: '#c4829a', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>{pro.metier}</span>
               <span style={{ background: '#e8f5ee', color: '#1a7a45', fontSize: '11px', fontWeight: '500', padding: '4px 12px', borderRadius: '20px' }}>✓ Disponible</span>
-              <span style={{ background: '#faf8f5', color: '#9c9189', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ede8e3' }}>⭐ 4.9 · 12 avis</span>
             </div>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px' }}>
 
-          {/* GAUCHE */}
+          {/* GAUCHE — SERVICES */}
           <div>
-            {/* SERVICES */}
             <div style={{ marginBottom: '40px', animation: 'fadeUp 0.6s ease 0.1s both' }}>
               <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '20px' }}>Prestations</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -238,28 +282,6 @@ function ProPage() {
                 ))}
               </div>
             </div>
-
-            {/* AVIS */}
-            <div style={{ animation: 'fadeUp 0.6s ease 0.2s both' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '20px' }}>Avis clients</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {avis.map((a, i) => (
-                  <div key={i} style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '14px', padding: '18px 20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>🌸</div>
-                        <span style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c' }}>{a.prenom}</span>
-                      </div>
-                      <div>
-                        {'⭐'.repeat(a.note)}
-                      </div>
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#9c9189', fontWeight: '300', lineHeight: '1.6', margin: '0 0 6px' }}>{a.texte}</p>
-                    <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{a.date}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* DROITE — RÉSERVATION */}
@@ -268,30 +290,20 @@ function ProPage() {
               <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '20px', padding: '32px', animation: 'scaleIn 0.5s ease forwards' }}>
                 <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase', marginBottom: '20px' }}>Réserver</p>
 
-                {/* ÉTAPE 1 — DATE & HEURE */}
                 {etape === 1 && (
                   <div>
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>DATE</label>
-                      <input
-                        type="date"
-                        value={dateChoisie}
-                        onChange={(e) => setDateChoisie(e.target.value)}
-                        className="input-zen"
-                      />
+                      <input type="date" value={dateChoisie} onChange={(e) => setDateChoisie(e.target.value)} className="input-zen" />
                     </div>
-
                     <div style={{ marginBottom: '28px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>HEURE</label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {creneaux.map((c) => (
-                          <div key={c} className={`creneau ${heureChoisie === c ? 'active' : ''}`} onClick={() => setHeureChoisie(c)}>
-                            {c}
-                          </div>
+                          <div key={c} className={`creneau ${heureChoisie === c ? 'active' : ''}`} onClick={() => setHeureChoisie(c)}>{c}</div>
                         ))}
                       </div>
                     </div>
-
                     {serviceChoisi && (
                       <div style={{ background: '#fdf6f8', border: '1px solid #e8d5db', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
                         <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 4px', fontWeight: '300' }}>Prestation sélectionnée</p>
@@ -299,38 +311,33 @@ function ProPage() {
                         <p style={{ fontSize: '13px', color: '#c4829a', margin: 0 }}>{serviceChoisi.prix}€ · {serviceChoisi.duree}</p>
                       </div>
                     )}
-
-                    <button
-                      className="btn-sakura"
-                      onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)}
-                      style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}
-                    >
+                    <button className="btn-sakura" onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)} style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}>
                       Continuer →
                     </button>
                   </div>
                 )}
 
-                {/* ÉTAPE 2 — INFOS CLIENTE */}
                 {etape === 2 && (
                   <form onSubmit={handleReservation}>
                     <div style={{ background: '#fdf6f8', border: '1px solid #e8d5db', borderRadius: '12px', padding: '14px 16px', marginBottom: '24px' }}>
                       <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 4px' }}>{serviceChoisi?.nom}</p>
                       <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{dateChoisie} à {heureChoisie} · {serviceChoisi?.prix}€</p>
                     </div>
-
                     <div style={{ marginBottom: '16px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>TON PRÉNOM</label>
                       <input type="text" value={nom} onChange={(e) => setNom(e.target.value)} placeholder="Ex: Sophie" required className="input-zen" />
                     </div>
-
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>TON EMAIL</label>
+                      <input type="email" value={emailCliente} onChange={(e) => setEmailCliente(e.target.value)} placeholder="ton@email.com" required className="input-zen" />
+                    </div>
                     <div style={{ marginBottom: '28px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>TON TÉLÉPHONE</label>
                       <input type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} placeholder="06 XX XX XX XX" required className="input-zen" />
                       <p style={{ fontSize: '11px', color: '#c4b5ac', marginTop: '6px' }}>Tu recevras un rappel SMS 24h avant 🌸</p>
                     </div>
-
-                    <button type="submit" className="btn-sakura" disabled={loading}>
-                      {loading ? '✦ Confirmation...' : 'Confirmer mon RDV'}
+                    <button type="submit" className="btn-sakura" disabled={loadingRdv}>
+                      {loadingRdv ? '✦ Confirmation...' : 'Confirmer mon RDV'}
                     </button>
                     <button type="button" className="btn-outline" onClick={() => setEtape(1)}>← Modifier</button>
                   </form>

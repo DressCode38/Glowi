@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, onSnapshot } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 
 function CustomCursor() {
@@ -36,6 +36,7 @@ function Dashboard() {
   const [activeMenu, setActiveMenu] = useState('accueil')
   const [pro, setPro] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [rdvs, setRdvs] = useState([])
 
   const urlParams = new URLSearchParams(window.location.search)
   const paiementReussi = urlParams.get('success') === 'true'
@@ -55,12 +56,25 @@ function Dashboard() {
       try {
         const docSnap = await getDoc(doc(db, 'pros', user.uid))
         if (docSnap.exists()) {
-          setPro(docSnap.data())
+          const proData = { ...docSnap.data(), uid: user.uid }
+          setPro(proData)
+
+          // Écouter les RDV en temps réel
+          const q = query(collection(db, 'rdvs'), where('proId', '==', user.uid))
+          onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+            data.sort((a, b) => {
+              if (a.date === b.date) return a.heure.localeCompare(b.heure)
+              return a.date.localeCompare(b.date)
+            })
+            setRdvs(data)
+          })
         } else {
-          setPro({ nom: user.displayName || 'Pro', email: user.email, plan: 'pro' })
+          setPro({ nom: user.displayName || 'Pro', email: user.email, plan: 'pro', uid: user.uid })
         }
       } catch (e) {
-        setPro({ nom: user.displayName || 'Pro', email: user.email, plan: 'pro' })
+        console.error(e)
+        setPro({ nom: user.displayName || 'Pro', email: user.email, plan: 'pro', uid: user.uid })
       }
       setLoading(false)
     })
@@ -86,6 +100,10 @@ function Dashboard() {
   const slugNom = pro?.nom?.toLowerCase().replace(/\s+/g, '-') || 'mon-salon'
   const planLabel = pro?.plan === 'starter' ? 'Starter' : pro?.plan === 'premium' ? 'Premium' : 'Pro'
   const planPrix = pro?.plan === 'starter' ? '19€' : pro?.plan === 'premium' ? '49€' : '29€'
+
+  const aujourd_hui = new Date().toISOString().split('T')[0]
+  const rdvsAujourdhui = rdvs.filter(r => r.date === aujourd_hui)
+  const rdvsAVenir = rdvs.filter(r => r.date >= aujourd_hui)
 
   return (
     <div style={{ fontFamily: 'Inter, sans-serif', minHeight: '100vh', background: '#faf8f5', display: 'flex', cursor: 'none' }}>
@@ -120,6 +138,7 @@ function Dashboard() {
         .rdv-row {
           display: flex; align-items: center; justify-content: space-between;
           padding: 14px 0; border-bottom: 1px solid #f5f0ed;
+          animation: fadeUp 0.5s ease forwards;
         }
         .rdv-row:last-child { border-bottom: none; }
         .badge-confirme { background: #e8f5ee; color: #1a7a45; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
@@ -180,17 +199,13 @@ function Dashboard() {
       {/* CONTENU PRINCIPAL */}
       <div style={{ marginLeft: '240px', flex: 1, padding: '40px 48px' }}>
 
-        {/* BANNIÈRE SUCCÈS PAIEMENT */}
+        {/* BANNIÈRE SUCCÈS */}
         {paiementReussi && (
           <div className="success-banner">
             <span style={{ fontSize: '32px' }}>🎉</span>
             <div>
-              <p style={{ fontSize: '15px', fontWeight: '500', color: '#1a7a45', margin: '0 0 4px' }}>
-                Paiement réussi — Bienvenue sur Glowi !
-              </p>
-              <p style={{ fontSize: '13px', color: '#2d9e5f', margin: 0, fontWeight: '300' }}>
-                Ton abonnement {planLabel} est maintenant actif. C'est parti ! 🌸
-              </p>
+              <p style={{ fontSize: '15px', fontWeight: '500', color: '#1a7a45', margin: '0 0 4px' }}>Paiement réussi — Bienvenue sur Glowi !</p>
+              <p style={{ fontSize: '13px', color: '#2d9e5f', margin: 0, fontWeight: '300' }}>Ton abonnement {planLabel} est maintenant actif. C'est parti ! 🌸</p>
             </div>
           </div>
         )}
@@ -204,22 +219,18 @@ function Dashboard() {
             </h2>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn-outline" onClick={() => navigate('/abonnement')}>
-              Gérer mon abonnement
-            </button>
-            <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>
-              Voir ma page publique
-            </button>
+            <button className="btn-outline" onClick={() => navigate('/abonnement')}>Gérer mon abonnement</button>
+            <button className="btn-sakura" onClick={() => navigate(`/pro/${slugNom}`)}>Voir ma page publique</button>
           </div>
         </div>
 
         {/* STATS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
           {[
-            { label: 'RDV ce mois', valeur: '0', evolution: 'Démarrage', couleur: '#c4829a' },
-            { label: 'Clientes totales', valeur: '0', evolution: 'Démarrage', couleur: '#9b8ec4' },
-            { label: 'No-shows évités', valeur: '0', evolution: '0€ économisés', couleur: '#6dbf9e' },
-            { label: 'Note moyenne', valeur: '—', evolution: '0 avis', couleur: '#e8a87c' },
+            { label: 'RDV ce mois', valeur: rdvs.filter(r => r.date?.startsWith(new Date().toISOString().slice(0,7))).length, evolution: 'Ce mois', couleur: '#c4829a' },
+            { label: 'RDV aujourd\'hui', valeur: rdvsAujourdhui.length, evolution: 'Aujourd\'hui', couleur: '#9b8ec4' },
+            { label: 'Total clientes', valeur: new Set(rdvs.map(r => r.clientTelephone)).size, evolution: 'Uniques', couleur: '#6dbf9e' },
+            { label: 'RDV à venir', valeur: rdvsAVenir.length, evolution: 'Planifiés', couleur: '#e8a87c' },
           ].map((stat, i) => (
             <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.1}s` }}>
               <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 12px', fontWeight: '300' }}>{stat.label}</p>
@@ -238,13 +249,37 @@ function Dashboard() {
               <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: '400', color: '#2c2c2c' }}>
                 Prochains rendez-vous
               </h3>
-              <span style={{ fontSize: '12px', color: '#c4829a' }}>Voir tout →</span>
+              <span style={{ fontSize: '12px', color: '#c4829a' }}>{rdvsAVenir.length} RDV</span>
             </div>
-            <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
-              <p style={{ fontSize: '14px', margin: '0 0 4px' }}>Aucun RDV pour le moment</p>
-              <p style={{ fontSize: '12px' }}>Partage ta page Glowi pour recevoir tes premières réservations 🌸</p>
-            </div>
+
+            {rdvsAVenir.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#c4b5ac' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
+                <p style={{ fontSize: '14px', margin: '0 0 4px' }}>Aucun RDV pour le moment</p>
+                <p style={{ fontSize: '12px' }}>Partage ta page Glowi pour recevoir tes premières réservations 🌸</p>
+              </div>
+            ) : (
+              rdvsAVenir.slice(0, 5).map((rdv, i) => (
+                <div key={rdv.id} className="rdv-row">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #fdf0f4, #f5e6ef)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+                      🌸
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '14px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.clientNom}</p>
+                      <p style={{ fontSize: '12px', color: '#9c9189', margin: 0, fontWeight: '300' }}>{rdv.service}</p>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: '13px', fontWeight: '500', color: '#2c2c2c', margin: '0 0 2px' }}>{rdv.heure}</p>
+                    <p style={{ fontSize: '11px', color: '#c4b5ac', margin: 0 }}>{rdv.date}</p>
+                  </div>
+                  <span className={rdv.statut === 'confirmé' ? 'badge-confirme' : 'badge-attente'}>
+                    {rdv.statut}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
 
           {/* PANNEAU DROIT */}
