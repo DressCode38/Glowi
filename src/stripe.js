@@ -1,21 +1,18 @@
-import { loadStripe } from '@stripe/stripe-js'
-
-export const stripePromise = loadStripe('pk_test_51TW1p0Jy6G7FvaMQnxxO6aOVWs89xtJLTpSQEoHflonVTDwlGYjpXpAcaSSeYkCAS6iNWGud3ULwuAPluINzpcal00hq5FGN6U')
-
 export const PLANS = {
   starter: {
     nom: 'Starter',
-    prix: '19€/mois',
-    priceId: 'price_1TW1sjJy6G7FvaMQdFvpUGjc',
+    prix: '19',
+    lien: 'https://buy.stripe.com/eVqcN5efng5e6uX5eAdwc03',
   },
   pro: {
     nom: 'Pro',
-    prix: '29€/mois',
-    priceId: 'price_1TW1tJJy6G7FvaMQxpSs5gWE',
+    prix: '29',
+    lien: 'https://buy.stripe.com/9B69AT7QZ1ak1aD6iEdwc04',
+    featured: true,
   },
   premium: {
     nom: 'Premium',
-    prix: '49€/mois',
-    priceId: 'price_1TW1tuJy6G7FvaMQ6cZhQEDD',
+    prix: '49',
+    lien: 'https://buy.stripe.com/14A8wPdbjdX61aD8qMdwc05',
   },
 }

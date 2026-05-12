@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
+import { PLANS } from '../stripe'
 
 function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
@@ -29,28 +30,6 @@ function CustomCursor() {
       transition: 'font-size 0.1s',
     }}>🌸</div>
   )
-}
-
-const PLANS = {
-  starter: {
-    nom: 'Starter',
-    prix: '19',
-    lien: 'https://buy.stripe.com/test_00wdRa5xRd0n7FCfQz3sI02',
-    features: ['Page pro personnalisée', 'Agenda en ligne', '5 RDV / mois', 'Confirmation email'],
-  },
-  pro: {
-    nom: 'Pro',
-    prix: '29',
-    lien: 'https://buy.stripe.com/test_14AbJ20dx0dB1he7k33sI01',
-    featured: true,
-    features: ['RDV illimités', 'Rappels SMS clients', 'Fiche cliente & stats', 'Avis clients', 'Support prioritaire'],
-  },
-  premium: {
-    nom: 'Premium',
-    prix: '49',
-    lien: 'https://buy.stripe.com/test_8x23cwgcve4raRObAj3sI00',
-    features: ['Tout le plan Pro', 'Mise en avant plateforme', 'Widget Instagram', 'Support prioritaire', 'Badge Premium'],
-  },
 }
 
 function Abonnement() {
@@ -161,22 +140,26 @@ function Abonnement() {
 
         {/* PLANS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '60px' }}>
-          {Object.entries(PLANS).map(([id, plan], i) => (
-            <div key={id} className={`plan-card ${plan.featured ? 'featured' : ''}`} style={{ animationDelay: `${i * 0.1}s` }}>
-              {plan.featured && (
+          {[
+            { id: 'starter', features: ['Page pro personnalisée', 'Agenda en ligne', '5 RDV / mois', 'Confirmation email'] },
+            { id: 'pro', featured: true, features: ['RDV illimités', 'Rappels SMS clients', 'Fiche cliente & stats', 'Avis clients', 'Support prioritaire'] },
+            { id: 'premium', features: ['Tout le plan Pro', 'Mise en avant plateforme', 'Widget Instagram', 'Support prioritaire', 'Badge Premium'] },
+          ].map((p, i) => (
+            <div key={p.id} className={`plan-card ${p.featured ? 'featured' : ''}`} style={{ animationDelay: `${i * 0.1}s` }}>
+              {p.featured && (
                 <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: '#c4829a', color: '#fff', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', padding: '5px 18px', borderRadius: '20px' }}>
                   Le plus choisi
                 </div>
               )}
-              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4b5ac', textTransform: 'uppercase', marginBottom: '16px' }}>{plan.nom}</p>
+              <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4b5ac', textTransform: 'uppercase', marginBottom: '16px' }}>{PLANS[p.id].nom}</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '32px' }}>
-                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '52px', fontWeight: '300', color: plan.featured ? '#c4829a' : '#2c2c2c' }}>
-                  {plan.prix}€
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '52px', fontWeight: '300', color: p.featured ? '#c4829a' : '#2c2c2c' }}>
+                  {PLANS[p.id].prix}€
                 </span>
                 <span style={{ fontSize: '13px', color: '#c4b5ac' }}>/mois</span>
               </div>
               <div style={{ borderTop: '1px solid #ede8e3', paddingTop: '24px', marginBottom: '32px' }}>
-                {plan.features.map((f, j) => (
+                {p.features.map((f, j) => (
                   <p key={j} style={{ fontSize: '13px', color: '#9c9189', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '300' }}>
                     <span style={{ color: '#c4829a' }}>✦</span> {f}
                   </p>
@@ -184,10 +167,11 @@ function Abonnement() {
               </div>
               <button
                 className="btn-sakura"
-                onClick={() => handlePaiement(plan.lien)}
-                disabled={pro?.plan === id && !pro?.essaiActif}
+                onClick={() => handlePaiement(PLANS[p.id].lien)}
+                disabled={pro?.plan === p.id && !pro?.essaiActif}
+                style={{ opacity: pro?.plan === p.id && !pro?.essaiActif ? 0.5 : 1 }}
               >
-                {pro?.plan === id && !pro?.essaiActif ? 'Plan actuel ✓' : 'Choisir ce plan →'}
+                {pro?.plan === p.id && !pro?.essaiActif ? 'Plan actuel ✓' : 'Choisir ce plan →'}
               </button>
             </div>
           ))}
