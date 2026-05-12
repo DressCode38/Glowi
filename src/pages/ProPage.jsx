@@ -73,6 +73,7 @@ function ProPage() {
   const navigate = useNavigate()
   const [pro, setPro] = useState(null)
   const [avis, setAvis] = useState([])
+  const [creneauxPris, setCreneauxPris] = useState([])
   const [loading, setLoading] = useState(true)
   const [serviceChoisi, setServiceChoisi] = useState(null)
   const [dateChoisie, setDateChoisie] = useState('')
@@ -92,7 +93,7 @@ function ProPage() {
     { id: 5, nom: 'Beauté des pieds', duree: '45min', prix: 30 },
   ]
 
-  const creneaux = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
+  const tousCreneaux = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
 
   useEffect(() => {
     const chargerPro = async () => {
@@ -103,10 +104,8 @@ function ProPage() {
         const proTrouvee = toutes.find(p => slugNom(p.nom) === id)
         if (proTrouvee) {
           setPro(proTrouvee)
-          // Charger les avis
           const avisSnapshot = await getDocs(query(collection(db, 'avis'), where('proId', '==', proTrouvee.id)))
-          const avisData = avisSnapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-          setAvis(avisData)
+          setAvis(avisSnapshot.docs.map(d => ({ id: d.id, ...d.data() })))
         }
       } catch (e) {
         console.error(e)
@@ -115,6 +114,27 @@ function ProPage() {
     }
     chargerPro()
   }, [id])
+
+  // Charger les créneaux pris quand la date change
+  useEffect(() => {
+    if (!dateChoisie || !pro) return
+    const chargerCreneauxPris = async () => {
+      try {
+        const q = query(
+          collection(db, 'rdvs'),
+          where('proId', '==', pro.id),
+          where('date', '==', dateChoisie),
+          where('statut', '==', 'confirmé')
+        )
+        const snapshot = await getDocs(q)
+        const heuresPrises = snapshot.docs.map(d => d.data().heure)
+        setCreneauxPris(heuresPrises)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    chargerCreneauxPris()
+  }, [dateChoisie, pro])
 
   const handleReservation = async (e) => {
     e.preventDefault()
@@ -143,6 +163,8 @@ function ProPage() {
   const noteMoyenne = avis.length > 0
     ? (avis.reduce((acc, a) => acc + a.note, 0) / avis.length).toFixed(1)
     : null
+
+  const aujourdhui = new Date().toISOString().split('T')[0]
 
   if (loading) {
     return (
@@ -203,6 +225,11 @@ function ProPage() {
         .creneau.active {
           background: #c4829a; color: #fff; border-color: #c4829a;
           box-shadow: 0 4px 12px rgba(196,130,154,0.3);
+        }
+        .creneau.pris {
+          background: #f5f0ed; color: #c4b5ac;
+          border-color: #ede8e3; text-decoration: line-through;
+          cursor: not-allowed; opacity: 0.6;
         }
         .input-zen {
           width: 100%; padding: 12px 16px;
@@ -317,21 +344,16 @@ function ProPage() {
                 <p style={{ fontSize: '11px', letterSpacing: '3px', color: '#c4829a', textTransform: 'uppercase' }}>
                   Avis clients {avis.length > 0 && `· ${noteMoyenne} ⭐`}
                 </p>
-                <button
-                  onClick={() => navigate(`/avis/${pro.id}`)}
-                  style={{ fontSize: '12px', color: '#c4829a', background: 'transparent', border: '1px solid #c4829a', borderRadius: '20px', padding: '5px 14px', cursor: 'none' }}
-                >
+                <button onClick={() => navigate(`/avis/${pro.id}`)} style={{ fontSize: '12px', color: '#c4829a', background: 'transparent', border: '1px solid #c4829a', borderRadius: '20px', padding: '5px 14px', cursor: 'none' }}>
                   + Laisser un avis
                 </button>
               </div>
-
               {avis.length === 0 ? (
                 <div style={{ background: '#fff', border: '1px solid #ede8e3', borderRadius: '14px', padding: '32px', textAlign: 'center' }}>
                   <p style={{ fontSize: '14px', color: '#c4b5ac', fontWeight: '300' }}>Aucun avis pour le moment 🌸</p>
-                  <p style={{ fontSize: '12px', color: '#ede8e3', marginTop: '6px' }}>Soyez la première à laisser un avis !</p>
                 </div>
               ) : (
-                avis.map((a, i) => (
+                avis.map((a) => (
                   <div key={a.id} className="avis-card">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -363,16 +385,50 @@ function ProPage() {
                   <div>
                     <div style={{ marginBottom: '24px' }}>
                       <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>DATE</label>
-                      <input type="date" value={dateChoisie} onChange={(e) => setDateChoisie(e.target.value)} className="input-zen" />
+                      <input
+                        type="date"
+                        value={dateChoisie}
+                        min={aujourdhui}
+                        onChange={(e) => {
+                          setDateChoisie(e.target.value)
+                          setHeureChoisie('')
+                        }}
+                        className="input-zen"
+                      />
                     </div>
+
                     <div style={{ marginBottom: '28px' }}>
-                      <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>HEURE</label>
+                      <label style={{ fontSize: '12px', fontWeight: '500', color: '#9c9189', display: 'block', marginBottom: '10px', letterSpacing: '0.5px' }}>
+                        HEURE
+                        {dateChoisie && creneauxPris.length > 0 && (
+                          <span style={{ fontSize: '11px', color: '#c4b5ac', marginLeft: '8px', fontWeight: '300' }}>
+                            — {creneauxPris.length} créneau(x) indisponible(s)
+                          </span>
+                        )}
+                      </label>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {creneaux.map((c) => (
-                          <div key={c} className={`creneau ${heureChoisie === c ? 'active' : ''}`} onClick={() => setHeureChoisie(c)}>{c}</div>
-                        ))}
+                        {tousCreneaux.map((c) => {
+                          const estPris = creneauxPris.includes(c)
+                          const estActif = heureChoisie === c
+                          return (
+                            <div
+                              key={c}
+                              className={`creneau ${estActif ? 'active' : ''} ${estPris ? 'pris' : ''}`}
+                              onClick={() => !estPris && setHeureChoisie(c)}
+                              title={estPris ? 'Créneau déjà réservé' : ''}
+                            >
+                              {c} {estPris ? '🚫' : ''}
+                            </div>
+                          )
+                        })}
                       </div>
+                      {!dateChoisie && (
+                        <p style={{ fontSize: '11px', color: '#c4b5ac', marginTop: '8px' }}>
+                          Choisissez d'abord une date pour voir les disponibilités
+                        </p>
+                      )}
                     </div>
+
                     {serviceChoisi && (
                       <div style={{ background: '#fdf6f8', border: '1px solid #e8d5db', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
                         <p style={{ fontSize: '12px', color: '#9c9189', margin: '0 0 4px', fontWeight: '300' }}>Prestation sélectionnée</p>
@@ -380,7 +436,12 @@ function ProPage() {
                         <p style={{ fontSize: '13px', color: '#c4829a', margin: 0 }}>{serviceChoisi.prix}€ · {serviceChoisi.duree}</p>
                       </div>
                     )}
-                    <button className="btn-sakura" onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)} style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}>
+
+                    <button
+                      className="btn-sakura"
+                      onClick={() => serviceChoisi && dateChoisie && heureChoisie && setEtape(2)}
+                      style={{ opacity: serviceChoisi && dateChoisie && heureChoisie ? 1 : 0.5 }}
+                    >
                       Continuer →
                     </button>
                   </div>
@@ -442,7 +503,6 @@ function ProPage() {
       <div style={{ textAlign: 'center', padding: '32px', borderTop: '1px solid #ede8e3', marginTop: '60px' }}>
         <p style={{ fontSize: '12px', color: '#c4b5ac' }}>Réservation propulsée par <span style={{ color: '#c4829a', fontWeight: '500' }}>Glowi ✦</span></p>
       </div>
-
     </div>
   )
 }
