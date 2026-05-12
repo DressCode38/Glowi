@@ -8,188 +8,174 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* ===== RESPONSIVE GLOBAL ===== */
-
-/* Navbar */
-nav {
-  padding: 16px 20px !important;
-}
-
-/* Réduire les paddings sur mobile */
 @media (max-width: 768px) {
 
-  /* HOME */
-  h2[style*="76px"] {
-    font-size: 42px !important;
+  /* CURSEUR NORMAL SUR MOBILE */
+  * { cursor: auto !important; }
+
+  /* NAVBAR */
+  nav[style*="padding: 20px 60px"],
+  nav[style*="padding: 24px 60px"] {
+    padding: 14px 16px !important;
   }
 
-  /* Grilles 3 colonnes → 1 colonne */
-  div[style*="grid-template-columns: repeat(3"] {
+  /* HERO HOME */
+  h2[style*="font-size: 76px"] {
+    font-size: 36px !important;
+    line-height: 1.2 !important;
+  }
+  h2[style*="font-size: 52px"] { font-size: 28px !important; }
+  h3[style*="font-size: 46px"] { font-size: 26px !important; }
+  h3[style*="font-size: 56px"] { font-size: 28px !important; }
+  h2[style*="font-size: 40px"] { font-size: 28px !important; }
+  h2[style*="font-size: 36px"] { font-size: 26px !important; }
+
+  /* PADDINGS */
+  div[style*="padding: 100px 60px"] { padding: 48px 16px !important; }
+  div[style*="padding: 80px 60px"] { padding: 40px 16px !important; }
+  div[style*="padding: 60px 60px"] { padding: 32px 16px !important; }
+  div[style*="padding: 48px 60px"] { padding: 24px 16px !important; }
+  div[style*="padding: 48px 24px"] { padding: 24px 16px !important; }
+  div[style*="padding: 60px 24px"] { padding: 32px 16px !important; }
+  div[style*="padding: 40px 48px"] { padding: 20px 16px !important; }
+  div[style*="padding: 32px 60px"] { padding: 20px 16px !important; }
+
+  /* GRILLES → 1 COLONNE */
+  div[style*="grid-template-columns: repeat(3, 1fr)"] {
     grid-template-columns: 1fr !important;
   }
-
-  /* Grilles 2 colonnes → 1 colonne */
-  div[style*="grid-template-columns: repeat(2"] {
+  div[style*="grid-template-columns: repeat(2, 1fr)"] {
     grid-template-columns: 1fr !important;
   }
-
-  /* Grilles 4 colonnes → 2 colonnes */
-  div[style*="grid-template-columns: repeat(4"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  /* Padding 60px → 20px */
-  div[style*="padding: 100px 60px"] {
-    padding: 48px 20px !important;
-  }
-
-  div[style*="padding: 80px 60px"] {
-    padding: 40px 20px !important;
-  }
-
-  div[style*="padding: 60px 40px"] {
-    padding: 32px 20px !important;
-  }
-
-  div[style*="padding: 48px 60px"] {
-    padding: 24px 20px !important;
-  }
-
-  div[style*="padding: 40px 48px"] {
-    padding: 24px 20px !important;
-  }
-
-  /* Flex → colonne sur mobile */
-  div[style*="display: flex"][style*="gap: 24px"],
-  div[style*="display: flex"][style*="gap: 32px"] {
-    flex-direction: column !important;
-  }
-
-  /* Dashboard sidebar cachée sur mobile */
-  div[style*="width: 240px"][style*="position: fixed"] {
-    display: none !important;
-  }
-
-  div[style*="margin-left: 240px"] {
-    margin-left: 0 !important;
-    padding: 20px !important;
-  }
-
-  /* Grille dashboard 2 colonnes → 1 colonne */
-  div[style*="grid-template-columns: 1fr 340px"] {
-    grid-template-columns: 1fr !important;
-  }
-
   div[style*="grid-template-columns: 1fr 400px"] {
     grid-template-columns: 1fr !important;
   }
-
-  /* ProPage sticky → normal */
-  div[style*="position: sticky"] {
-    position: relative !important;
-    top: auto !important;
+  div[style*="grid-template-columns: 1fr 340px"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
   }
 
-  /* Navbar padding */
-  nav[style*="padding: 20px 60px"],
-  nav[style*="padding: 24px 60px"] {
-    padding: 16px 20px !important;
+  /* FLEX → COLONNE */
+  div[style*="display: flex"][style*="gap: 24px"]:not(nav *) {
+    flex-wrap: wrap !important;
+  }
+  div[style*="display: flex"][style*="gap: 32px"]:not(nav *) {
+    flex-wrap: wrap !important;
   }
 
-  /* Footer padding */
-  div[style*="padding: 32px 60px"] {
-    padding: 24px 20px !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    text-align: center !important;
-  }
-
-  /* Panneau gauche login/register caché sur mobile */
+  /* PANNEAU GAUCHE LOGIN/REGISTER CACHÉ */
   div[style*="width: 45%"],
   div[style*="width: 42%"] {
     display: none !important;
   }
 
-  /* Texte hero plus petit */
-  h2[style*="font-size: 76px"] {
-    font-size: 38px !important;
-    line-height: 1.2 !important;
+  /* STICKY → NORMAL */
+  div[style*="position: sticky"][style*="top: 90px"] {
+    position: relative !important;
+    top: auto !important;
   }
 
-  h2[style*="font-size: 52px"] {
-    font-size: 32px !important;
+  /* NAVBAR BOUTONS */
+  nav div[style*="gap: 14px"],
+  nav div[style*="gap: 10px"] {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  nav button[style*="letter-spacing: 1.5px"] {
+    font-size: 11px !important;
+    padding: 8px 14px !important;
   }
 
-  h3[style*="font-size: 46px"] {
-    font-size: 28px !important;
-  }
-
-  h3[style*="font-size: 56px"] {
-    font-size: 32px !important;
-  }
-
-  /* Boutons navbar */
-  nav div[style*="display: flex"][style*="gap: 14px"],
-  nav div[style*="display: flex"][style*="gap: 10px"] {
-    gap: 8px !important;
-  }
-
-  /* Stats cards */
-  div[style*="grid-template-columns: repeat(4, 1fr)"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  /* Carte villes */
-  div[style*="max-width: 600px"] {
-    max-width: 100% !important;
-  }
-
-  /* Progression */
-  div[style*="max-width: 700px"] {
-    max-width: 100% !important;
-  }
-
-  /* Plan cards */
+  /* PLAN CARDS */
   div[style*="min-width: 240px"] {
     min-width: unset !important;
     width: 100% !important;
   }
 
-  /* Abonnement grille */
-  div[style*="grid-template-columns: repeat(3, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Espace cliente stats */
-  div[style*="grid-template-columns: repeat(3, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Max width containers */
+  /* MAX WIDTH */
   div[style*="max-width: 900px"],
   div[style*="max-width: 800px"],
   div[style*="max-width: 700px"],
-  div[style*="max-width: 500px"] {
+  div[style*="max-width: 600px"],
+  div[style*="max-width: 500px"],
+  div[style*="max-width: 460px"] {
     max-width: 100% !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
   }
 
-  /* GestionServices grid */
+  /* GESTION SERVICES GRID */
   div[style*="grid-template-columns: 1fr 120px 100px"] {
     grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
 
-  /* Horaires */
+  /* FOOTER */
+  div[style*="padding: 32px 60px"][style*="display: flex"] {
+    flex-direction: column !important;
+    padding: 20px 16px !important;
+    gap: 10px !important;
+    text-align: center !important;
+  }
+
+  /* PROPAGE PROFIL */
+  div[style*="display: flex"][style*="align-items: flex-start"][style*="gap: 24px"] {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  /* HORAIRES BADGES */
   div[style*="display: flex"][style*="gap: 8px"][style*="flex-wrap: wrap"] {
     gap: 6px !important;
   }
 
-}
-
-/* Curseur normal sur mobile */
-@media (max-width: 768px) {
-  * {
-    cursor: auto !important;
+  /* RECHERCHE FILTRES */
+  div[style*="display: flex"][style*="gap: 10px"][style*="justify-content: center"] {
+    gap: 6px !important;
   }
+
+  /* STATS HOME */
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* PROGRESSION STEPS */
+  div[style*="max-width: 700px"] {
+    max-width: 100% !important;
+  }
+
+  /* ABONNEMENT GARANTIES */
+  div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ESPACE CLIENTE STATS */
+  div[style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* IFRAME CARTE */
+  iframe[title="carte"] {
+    height: 160px !important;
+  }
+
+  /* BOUTONS PLEINE LARGEUR SUR MOBILE */
+  .btn-sakura, .btn-outline {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* HERO BOUTONS */
+  div[style*="display: flex"][style*="gap: 14px"][style*="justify-content: center"] {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  /* TARIFS HOME */
+  div[style*="display: flex"][style*="justify-content: center"][style*="gap: 24px"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
 }
